@@ -1,0 +1,5 @@
+Servidor......: SRV01\SQLEXPRESS
+Banco de Dados: IRRIGACAO
+Usuario.......: irrigplis
+Senha.........: irrigplis
+Provider......: SQLOLEDB

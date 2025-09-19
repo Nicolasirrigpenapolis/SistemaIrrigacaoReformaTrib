@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD>
+<BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cria&ccedil;&atilde;o do banco de dados">
+		<param name="Local" value="Corpo.htm#CriaBD">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Entrada de senhas de acesso">
+		<param name="Local" value="Corpo.htm#EntraSenha">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Manuten&ccedil;&atilde;o de senhas de acesso">
+		<param name="Local" value="Corpo.htm#ManutSenhas">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Janela inicial">
+		<param name="Local" value="Corpo.htm#JanelaInicial">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Barra de menu">
+		<param name="Local" value="Corpo.htm#BarraMenu">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Barra de ferramentas">
+		<param name="Local" value="Corpo.htm#BarraFerr">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Teclas de controle de edi&ccedil;&atilde;o">
+		<param name="Local" value="Corpo.htm#CtrlEdicao">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Incluindo registros">
+		<param name="Local" value="Corpo.htm#Inclui">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Alterando e excluindo registros">
+		<param name="Local" value="Corpo.htm#Altera">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Filtrando informa&ccedil;&otilde;es">
+		<param name="Local" value="Corpo.htm#Filtra">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Navegando nos registros">
+		<param name="Local" value="Corpo.htm#Navegando">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Modos de visualiza&ccedil;&atilde;o">
+		<param name="Local" value="Corpo.htm#ModosVis">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Procurando um registro">
+		<param name="Local" value="Corpo.htm#Procura">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Montagem de consultas">
+		<param name="Local" value="Corpo.htm#MontaCons">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Emiss&atilde;o de relat&oacute;rios">
+		<param name="Local" value="Corpo.htm#Relatorio">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Pequeno GLOSS&Aacute;RIO">
+		<param name="Local" value="Index.htm#Glossario">
+		</OBJECT>
+</UL>
+</BODY>
+</HTML>
+

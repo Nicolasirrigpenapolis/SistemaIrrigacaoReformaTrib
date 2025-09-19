@@ -1,0 +1,8 @@
+Quando se instala o SQL SERVER não esquecer de marcar a opção "Mixed Authentication Mode" e digitar uma senha
+Depois de instalado você pode abrir o SQL Management Studio e alterar o nome do usuario padrão 'sa' e a sua senha para qualquer outra
+
+Bom e se eu já instalei o SQL SERVER sem essa Opção de "Mixed Authentication Mode"?
+
+Basta se conectar na sua instancia pelo SQL Management Studio, ir em propriedades\Security e mudar para "SQL Server and windows authentication mode"
+
+Obs.: feiro isso não esquecer de reiniciar a instancia

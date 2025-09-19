@@ -1,0 +1,1 @@
+Ao apresentar esse erro nas consultas, devemos executar o hotfix "KB983246" na maquina de acordo com a versão do Sistema Operacional

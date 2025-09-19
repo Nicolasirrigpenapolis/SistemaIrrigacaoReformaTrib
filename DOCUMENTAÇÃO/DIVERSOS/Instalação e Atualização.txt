@@ -1,0 +1,18 @@
+Arquivos P/ Atualização
+
+- Adapta.exe
+- Adapta.sql
+- Irrigacao-SQL.sql
+- Irrig.Res
+- Irrig.Xml
+- Irrig.exe
+
+Utilizar para gerar esses arquivos o GeraAtualização.bat ele cria o .zip com os arquivos pronto para jogar no servidor
+
+Instalação (Primeira Vez)
+  - Gerar o Instalador pelo Setup.ISS
+  - Instalar normalmente
+
+Estações:
+  - Na pasta do sistema das estações é necessário ter o aplicativo Atualizador.exe, quando o sistema é aberto ele verifica
+se o .EXE do sistema é diferente do que está na pasta de atualização, se for ele abre o Atualizador.exe e modifica os arquivos

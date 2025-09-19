@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Aplicação">
+		<param name="Local" value="index.htm#Aplicacao">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Arquivo de inicialização">
+		<param name="Local" value="index.htm#Arqinicializacao">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Asterisco">
+		<param name="Local" value="index.htm#Asterisco">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Banco de dados">
+		<param name="Local" value="index.htm#BD">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Banco de dados multiusuário">
+		<param name="Local" value="index.htm#BDMulti">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Barra de ferramentas">
+		<param name="Local" value="index.htm#Barraferramenta">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Buffer">
+		<param name="Local" value="index.htm#Buffer">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Caixa de diálogo">
+		<param name="Local" value="index.htm#Caixadialogo">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Campo">
+		<param name="Local" value="index.htm#Campo">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Campo-Chave">
+		<param name="Local" value="index.htm#CampoChave">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Caractere">
+		<param name="Local" value="index.htm#Caractere">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Caracteres 'curinga' ou WildCards">
+		<param name="Local" value="index.htm#Curinga">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Chave Primária">
+		<param name="Local" value="index.htm#ChavePrimaria">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cláusula FROM">
+		<param name="Local" value="index.htm#ClausulaFrom">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cláusula GROUP BY">
+		<param name="Local" value="index.htm#ClausulaGroupBy">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cláusula ORDER BY">
+		<param name="Local" value="index.htm#ClausulaOrderBy">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cláusula SELECT">
+		<param name="Local" value="index.htm#ClausulaSelect">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cláusula WHERE">
+		<param name="Local" value="index.htm#ClausulaWhere">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Default">
+		<param name="Local" value="index.htm#Default">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Domínio ou escopo">
+		<param name="Local" value="index.htm#Dominio">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Evento">
+		<param name="Local" value="index.htm#Evento">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Filtro">
+		<param name="Local" value="index.htm#Filtro">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Foco">
+		<param name="Local" value="index.htm#Foco">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Formulário">
+		<param name="Local" value="index.htm#Formulario">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Ícone">
+		<param name="Local" value="index.htm#Icone">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Índice">
+		<param name="Local" value="index.htm#Indice">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Integridade Referencial">
+		<param name="Local" value="index.htm#IntegridadeRef">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Janela">
+		<param name="Local" value="index.htm#Janela">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="MDI">
+		<param name="Local" value="index.htm#MDI">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Modal">
+		<param name="Local" value="index.htm#Modal">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Objeto">
+		<param name="Local" value="index.htm#Objeto">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Programa ou código">
+		<param name="Local" value="index.htm#Codigo">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Programa Executável">
+		<param name="Local" value="index.htm#Executavel">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Query">
+		<param name="Local" value="index.htm#Query">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Registro">
+		<param name="Local" value="index.htm#Registro">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Registro Corrente">
+		<param name="Local" value="index.htm#RegCorrente">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Relação">
+		<param name="Local" value="index.htm#Relacao">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="SQL">
+		<param name="Local" value="index.htm#SQL">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Tabela">
+		<param name="Local" value="index.htm#Tabela">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Tabela ANSI">
+		<param name="Local" value="index.htm#TabelaANSI">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Tabela ASCII">
+		<param name="Local" value="index.htm#TabelaASCII">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Tipo de campo">
+		<param name="Local" value="index.htm#TipCampo">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Validação">
+		<param name="Local" value="index.htm#Validacao">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Workgroup">
+		<param name="Local" value="index.htm#Workgroup">
+		</OBJECT>
+</UL>
+</BODY>
+</HTML>

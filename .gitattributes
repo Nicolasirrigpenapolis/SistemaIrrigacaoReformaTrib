@@ -1,0 +1,5 @@
+# Força CRLF em arquivos VB6
+*.CLS   text eol=crlf
+*.FRM   text eol=crlf
+*.BAS   text eol=crlf
+*.VBP   text eol=crlf

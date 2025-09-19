@@ -1,0 +1,30 @@
+CAMPO PARA CRIAR NO BANCO DE DADOS - NOTA FISCAL
+===============================================
+
+TABELA: Nota Fiscal
+
+NOME DO CAMPO: [Edição Manual Campos]
+TIPO: BIT (Boolean)
+VALOR PADRÃO: 0 (False/Desmarcado)
+PERMITE NULO: Não
+DESCRIÇÃO: Controla se usuário pode editar manualmente todos os campos dos grids de produtos, conjuntos e peças
+
+COMANDO SQL:
+ALTER TABLE [Nota Fiscal] ADD [Edição Manual Campos] BIT DEFAULT 0;
+
+FUNCIONALIDADE:
+- 0 = Edição manual desabilitada (padrão)
+- 1 = Edição manual habilitada (apenas IGOR, JUCELI, MAYSA)
+- Quando habilitado: permite editar todos campos dos grids + desativa cálculos automáticos
+
+INTEGRAÇÃO NO CÓDIGO:
+- Campo vinculado ao chkCampo(12) - "Edição Manual Campos"
+- DataField: "Edição Manual Campos"
+- Variável: Edicao_Manual_Campos As Boolean
+
+GRIDS AFETADOS:
+- Grid 0: Produtos
+- Grid 2: Conjuntos
+- Grid 3: Peças
+
+IMPORTANTE: Execute este comando SQL ANTES de compilar/usar a aplicação!

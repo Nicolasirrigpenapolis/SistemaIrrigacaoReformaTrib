@@ -1,0 +1,8 @@
+ - Criar um documento texto com a extensão .rdp
+ - Computador: SRV01
+ - Usuario: IRRIGACAO\User01
+ - programas caminho: "C:\DADOS\Sistemas\Irrigacao\TS\User1\Executar.bat"
+             Opção de Baixo: "C:\DADOS\Sistemas\Irrigacao\TS\User1\"
+
+Lembrando que o Usuario IRRIGACAO\User01 - É criado no servidor para cada usuario novo
+e user1 nos caminhos é a pasta do servidor onde se encontra o TS, um para cada usuario também

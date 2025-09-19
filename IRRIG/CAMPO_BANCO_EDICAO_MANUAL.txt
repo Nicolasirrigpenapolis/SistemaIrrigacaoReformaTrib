@@ -1,0 +1,25 @@
+CAMPO PARA CRIAR NO BANCO DE DADOS
+=====================================
+
+TABELA: Orçamento
+
+NOME DO CAMPO: [Edição Manual Campos]
+TIPO: BIT (Boolean)
+VALOR PADRÃO: 0 (False/Desmarcado)
+PERMITE NULO: Não
+DESCRIÇÃO: Controla se usuário pode editar manualmente todos os campos do grid
+
+COMANDO SQL:
+ALTER TABLE [Orçamento] ADD [Edição Manual Campos] BIT DEFAULT 0;
+
+FUNCIONALIDADE:
+- 0 = Edição manual desabilitada (padrão)
+- 1 = Edição manual habilitada (apenas IGOR, JUCELI, MAYSA)
+- Quando habilitado: permite editar todos campos do grid + desativa cálculos automáticos
+
+INTEGRAÇÃO NO CÓDIGO:
+- Campo vinculado ao chkCampo(13) - "Edição Manual Campos"
+- DataField: "Edição Manual Campos"
+- Variável: Edicao_Manual_Campos As Boolean
+
+IMPORTANTE: Execute este comando SQL ANTES de compilar/usar a aplicação!

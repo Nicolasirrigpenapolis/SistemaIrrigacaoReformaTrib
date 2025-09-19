@@ -1,0 +1,19 @@
+Line 27: Class SHDocVwCtl.WebBrowser of control IE_Web was not a loaded control class.
+Line 33: The property name ExtentX in IE_Web is invalid.
+Line 34: The property name ExtentY in IE_Web is invalid.
+Line 35: The property name ViewMode in IE_Web is invalid.
+Line 36: The property name Offline in IE_Web is invalid.
+Line 37: The property name Silent in IE_Web is invalid.
+Line 38: The property name RegisterAsBrowser in IE_Web is invalid.
+Line 39: The property name RegisterAsDropTarget in IE_Web is invalid.
+Line 40: The property name AutoArrange in IE_Web is invalid.
+Line 41: The property name NoClientEdge in IE_Web is invalid.
+Line 42: The property name AlignLeft in IE_Web is invalid.
+Line 43: The property name NoWebView in IE_Web is invalid.
+Line 44: The property name HideFileNames in IE_Web is invalid.
+Line 45: The property name SingleClick in IE_Web is invalid.
+Line 46: The property name SingleSelection in IE_Web is invalid.
+Line 47: The property name NoFolders in IE_Web is invalid.
+Line 48: The property name Transparent in IE_Web is invalid.
+Line 49: The property name ViewID in IE_Web is invalid.
+Line 50: The property name Location in IE_Web is invalid.

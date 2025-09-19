@@ -1,0 +1,55 @@
+Usamos
+
+Function totalICMS400(vBC As Double, vICMS As Double, vBCST As Double, vST As Double, vProd As Double, vFrete As Double, vSeg As Double, vDesc As Double, vII As Double, vIPI As Double, vPIS As Double, vCOFINS As Double, vOutro As Double, vNF As Double, vTotTrib As Double, vICMSDeson As Double, vICMSUFDest_Opc As Double, vICMSUFRemet_Opc As Double, vFCPUFDest_Opc As Double, vFCP As Double, vFCPST As Double, vFCPSTRet As Double, vIPIDevol As Double) As String
+
+    Member of NFe_Util_2G.Util
+
+
+
+
+
+usarmos a totalRTC
+
+
+Function totalRTC(ICMSTot As String, ISSQNtot As String, retTrib As String, vIS As Double, IBSCBSTot As String, vNFTot As Double) As String
+
+    Member of NFe_Util_2G.Util
+
+
+
+Atualmente usamos o impostoNT2015003
+
+
+
+Campos
+
+
+
+Function impostoNT2015003(vTotTrib As Double, Grupo_Icms As String, Grupo_Ipi As String, Grupo_Ii As String, Grupo_Pis As String, Grupo_Pisst As String, Grupo_Cofins As String, Grupo_Cofinsst As String, Grupo_Issqn As String, Grupo_ICMSUFDest As String) As String
+
+    Member of NFe_Util_2G.Util
+
+
+
+
+
+
+
+devera usar agora o IMpostoRTC
+
+IMPORTANTE - CORREÇÃO ERRO XML 5505:
+A função totalRTC deve gerar elementos na ORDEM CORRETA conforme schema nfe_v4.00.xsd:
+1. ICMSTot (primeiro)
+2. ISSQNtot (segundo) 
+3. retTrib (terceiro)
+4. IBSCBSTot (quarto)
+
+Esta correção resolve o erro: "O elemento 'total' apresenta elemento filho inválido"
+
+
+
+
+
+Function impostoRTC(vTotTrib As Double, Grupo_Icms As String, Grupo_Ipi As String, Grupo_Ii As String, Grupo_Pis As String, Grupo_Pisst As String, Grupo_Cofins As String, Grupo_Cofinsst As String, Grupo_Issqn As String, Grupo_ICMSUFDest As String, Grupo_IS As String, Grupo_IBSCBS As String) As String
+
+    Member of NFe_Util_2G.Util

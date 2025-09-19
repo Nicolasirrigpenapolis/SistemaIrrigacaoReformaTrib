@@ -1,0 +1,344 @@
+Importação Realizada em 17/08/2012 as 07:55:35
+==============================
+CIDADES
+==============================
+Cidades Importado com Sucesso.
+1121 Registro(s) Importado.
+==============================
+CLIENTES
+==============================
+Clientes Importado com Sucesso.
+3674 Registro(s) Importado.
+==============================
+PROPRIEDADES
+==============================
+Propriedades Importado com Sucesso.
+1766 Registro(s) Importado.
+==============================
+PROPRIEDADES DO GERAL
+==============================
+Propriedades do Geral Importado com Sucesso.
+1766 Registro(s) Importado.
+==============================
+FORNECEDOR/TRANSPORTE/IMPOSTO/DESPESAS
+==============================
+Fornecedor/Transporte/Imposto/Despesas Importado com Sucesso.
+2351 Registro(s) Importado.
+==============================
+VENDEDORES
+==============================
+Vendedor Importado com Sucesso.
+11 Registro(s) Importado.
+==============================
+VENDEDORES CLIENTES
+==============================
+Vendedor Clientes Importado com Sucesso.
+1136 Registro(s) Importado.
+==============================
+GRUPO DO PRODUTO
+==============================
+Grupo do Produto Importado com Sucesso.
+19 Registro(s) Importado.
+==============================
+SUBGRUPO DO PRODUTO
+==============================
+SubGrupo do Produto Importado com Sucesso.
+213 Registro(s) Importado.
+==============================
+UNIDADES
+==============================
+Unidades Importado com Sucesso.
+18 Registro(s) Importado.
+==============================
+CLASSIFICAÇÃO FISCAL
+==============================
+Classificação Fiscal Importado com Sucesso.
+719 Registro(s) Importado.
+==============================
+PRODUTOS
+==============================
+Produtos Importado com Sucesso.
+21299 Registro(s) Importado.
+==============================
+MATÉRIA PRIMA
+==============================
+Matéria Prima Importado com Sucesso.
+9897 Registro(s) Importado.
+==============================
+CONJUNTOS
+==============================
+Conjuntos Importado com Sucesso.
+733 Registro(s) Importado.
+==============================
+ITENS DO CONJUNTO
+==============================
+Itens Conjuntos Importado com Sucesso.
+26853 Registro(s) Importado.
+==============================
+AGÊNCIAS
+==============================
+Agência Importado com Sucesso.
+10 Registro(s) Importado.
+==============================
+CONTA CORRENTE DA AGÊNCIA
+==============================
+Conta Corrente da Agência Importado com Sucesso.
+11 Registro(s) Importado.
+==============================
+NATUREZA DE OPERAÇÃO
+==============================
+Natureza de Operação Importado com Sucesso.
+126 Registro(s) Importado.
+==============================
+SERVIÇOS
+==============================
+Serviços Importado com Sucesso.
+66 Registro(s) Importado.
+==============================
+ICMS
+==============================
+ICMS Importado com Sucesso.
+27 Registro(s) Importado.
+==============================
+GRUPO DA DESPESA
+==============================
+Grupo da Despesa Importado com Sucesso.
+19 Registro(s) Importado.
+==============================
+SUBGRUPO DA DESPESA
+==============================
+SubGrupo da Despesa Importado com Sucesso.
+194 Registro(s) Importado.
+==============================
+Tp. COBRANÇA
+==============================
+Tp. Cobrança Cadastrado com Sucesso.
+10 Registro(s) Cadastrado.
+==============================
+ENTRADA PAGAR
+==============================
+Entrada Contas a Pagar Importado com Sucesso.
+23881 Registro(s) Importado.
+==============================
+ENTRADA RECEBER
+==============================
+Entrada Contas a Receber Importado com Sucesso.
+392 Registro(s) Importado.
+==============================
+ENTRADA NO ESTOQUE
+==============================
+Entrada no Estoque Importado com Sucesso.
+6727 Registro(s) Importado.
+==============================
+PRODUTOS DA ENTRADA ESTOQUE
+==============================
+Produtos da Entrada Estoque Importado com Sucesso.
+15936 Registro(s) Importado.
+==============================
+CONJUNTOS DA ENTRADA ESTOQUE
+==============================
+Conjuntos da Entrada Estoque Importado com Sucesso.
+146 Registro(s) Importado.
+==============================
+HISTÓRICO DA CONTA CORRENTE
+==============================
+Histórico do C C Importado com Sucesso.
+132 Registro(s) Importado.
+==============================
+MOVIMENTAÇÃO DA CONTA CORRENTE
+==============================
+Histórico do C C Importado com Sucesso.
+55783 Registro(s) Importado.
+==============================
+ENTRADA NA RECEITA
+==============================
+Entrada na Receita Importado com Sucesso.
+1169 Registro(s) Importado.
+==============================
+PRODUTOS DA ENTRADA RECEITA
+==============================
+Produtos da Entrada Receita Importado com Sucesso.
+14705 Registro(s) Importado.
+==============================
+CONJUNTOS DA ENTRADA RECEITA
+==============================
+Conjuntos da Entrada Receita Importado com Sucesso.
+384 Registro(s) Importado.
+==============================
+MOVIMENTO DO ESTOQUE
+==============================
+Movimento do Estoque Importado com Sucesso.
+228549 Registro(s) Importado.
+==============================
+MOVIMENTO DO ESTOQUE CONJUNTO
+==============================
+Movimento do Estoque Conj Importado com Sucesso.
+1211 Registro(s) Importado.
+==============================
+REQUISIÇÃO
+==============================
+Requisição Importado com Sucesso.
+7520 Registro(s) Importado.
+==============================
+ÍTENS DA REQUISIÇÃO
+==============================
+Ítens da Requisição Importado com Sucesso.
+9949 Registro(s) Importado.
+==============================
+ENTRADA NO ESTOQUE CONTÁBIL
+==============================
+Entrada no Estoque Contábil Importado com Sucesso.
+7675 Registro(s) Importado.
+==============================
+PRODUTOS DA ENTRADA CONTÁBIL
+==============================
+Produtos da Entrada Contábil Importado com Sucesso.
+20449 Registro(s) Importado.
+==============================
+CONJUNTOS DA ENTRADA CONTABIL
+==============================
+Conjuntos da Entrada Contábil Importado com Sucesso.
+642 Registro(s) Importado.
+==============================
+ORDEM DE SERVIÇO
+==============================
+Ordem de Serviço Importado com Sucesso.
+1337 Registro(s) Importado.
+==============================
+PRODUTOS DA ORDEM DE SERVIÇO
+==============================
+Produtos da Ordem de Serviço Importado com Sucesso.
+4201 Registro(s) Importado.
+==============================
+SERVIÇOS DA ORDEM DE SERVIÇO
+==============================
+Serviços da Ordem de Serviço Importado com Sucesso.
+357 Registro(s) Importado.
+==============================
+PEÇAS DA ORDEM DE SERVIÇO
+==============================
+Peças da Ordem de Serviço Importado com Sucesso.
+119 Registro(s) Importado.
+==============================
+CONJUNTOS DA ORDEM DE SERVIÇO
+==============================
+Nenhum Registro Foi Importado.
+Conjuntos da Ordem de Serviço Importado com Sucesso.
+0 Registro(s) Importado.
+==============================
+ORÇAMENTO
+==============================
+Orçamento Importado com Sucesso.
+11795 Registro(s) Importado.
+==============================
+PRODUTOS DO ORÇAMENTO
+==============================
+Produtos do Orçamento Importado com Sucesso.
+30572 Registro(s) Importado.
+==============================
+SERVIÇOS DO ORÇAMENTO
+==============================
+Serviços do Orçamento Importado com Sucesso.
+1322 Registro(s) Importado.
+==============================
+PEÇAS DO ORÇAMENTO
+==============================
+Peças do Orçamento Importado com Sucesso.
+17808 Registro(s) Importado.
+==============================
+CONJUNTOS DO ORÇAMENTO
+==============================
+Conjuntos do Orçamento Importado com Sucesso.
+3333 Registro(s) Importado.
+==============================
+PEDIDO
+==============================
+Pedido Importado com Sucesso.
+9450 Registro(s) Importado.
+==============================
+PRODUTOS DO PEDIDO
+==============================
+Produtos do Pedido Importado com Sucesso.
+27017 Registro(s) Importado.
+==============================
+SERVIÇOS DO PEDIDO
+==============================
+Serviços do Pedido Importado com Sucesso.
+1999 Registro(s) Importado.
+==============================
+PEÇAS DO PEDIDO
+==============================
+Peças do Pedido Importado com Sucesso.
+6049 Registro(s) Importado.
+==============================
+CONJUNTOS DO PEDIDO
+==============================
+Conjuntos do Pedido Importado com Sucesso.
+1040 Registro(s) Importado.
+==============================
+NOTA FISCAL
+==============================
+Nota Fiscal Importado com Sucesso.
+11851 Registro(s) Importado.
+==============================
+PRODUTOS DA NOTA FISCAL
+==============================
+Produtos da Nota Fiscal Importado com Sucesso.
+30735 Registro(s) Importado.
+==============================
+SERVIÇOS DA NOTA FISCAL
+==============================
+Serviços da Nota Fiscal Importado com Sucesso.
+2034 Registro(s) Importado.
+==============================
+PEÇAS DA NOTA FISCAL
+==============================
+Peças da Nota Fiscal Importado com Sucesso.
+8177 Registro(s) Importado.
+==============================
+CONJUNTOS DA NOTA FISCAL
+==============================
+Conjuntos da Nota Fiscal Importado com Sucesso.
+1903 Registro(s) Importado.
+==============================
+CONTAS A PAGAR
+==============================
+Contas a Pagar Importado com Sucesso.
+35732 Registro(s) Importado.
+==============================
+CONTAS A RECEBER
+==============================
+Contas a Receber Importado com Sucesso.
+12190 Registro(s) Importado.
+==============================
+BAIXA CONTA A PAGAR
+==============================
+Baixa Contas a Pagar Importado com Sucesso.
+34861 Registro(s) Importado.
+==============================
+BAIXA CONTA A RECEBER
+==============================
+Baixa Contas a Receber Importado com Sucesso.
+12999 Registro(s) Importado.
+==============================
+BAIXA MP PRODUTO
+==============================
+Baixa MP Produto Importado com Sucesso.
+70408 Registro(s) Importado.
+==============================
+BAIXA MP CONJUNTO
+==============================
+Baixa MP Conjunto Importado com Sucesso.
+95598 Registro(s) Importado.
+==============================
+GRUPO DE USUARIO
+==============================
+Grupo do Usuario Importado com Sucesso.
+9 Registro(s) Importado.
+==============================
+USUARIOS
+==============================
+Usuarios Importado com Sucesso.
+26 Registro(s) Importado.
+==============================
+Importação Concluída com Sucesso!!!

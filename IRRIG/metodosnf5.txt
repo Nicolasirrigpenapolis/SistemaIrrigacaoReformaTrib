@@ -1,0 +1,70 @@
+ PRIORIDADE 1 - Métodos Fundamentais:
+
+  1. identificadorRTC (linha 121):
+
+  public string identificadorRTC(int cUF, int cNF, string natOp,  
+  int mod, int serie, int nNF, 
+      string dhEmi, string dhSaiEnt, int tpNF, int idDest, string 
+  cMunFG, string NFref_Opc, 
+      int tpImp, int tpEmis, int cDV, int tpAmb, int finNFe, int       
+  indFinal, int indPres, 
+      int procEmi, string verProc, string dhCont, string xJust, int    
+   indIntermed_Opc, 
+      string cMunFGIBS_Opc, string tpNFDebito_Opc, string 
+  tpNFCredito_Opc, 
+      string gCompraGov_Opc, string NFePagAntecipado_Opc)
+
+  2. totalRTC (linha 193):
+
+  public string totalRTC(string ICMSTot, string ISSQNtot, string       
+  retTrib, 
+      double vIS, string IBSCBSTot, double vNFTot)
+
+  🔥 PRIORIDADE 2 - Métodos de Impostos:
+
+  3. IS (linha 129):
+
+  public string IS(string CSTIS, string cClassTribIS, double vBCIS,    
+   double pIS, 
+      double pISEspec_Opc, string uTrib_Opc, double qTrib_Opc,         
+  double vIS)
+
+  4. IBSCBS (linha 133):
+
+  public string IBSCBS(string CST, string cClassTrib, string 
+  gTributo, string gCredPresIBSZFM_Opc)
+
+  5. gIBSCBS (linha 169):
+
+  public string gIBSCBS(double vBC, string gIBSUF, string gIBSMun,     
+  string gCBS, 
+      string gTribRegular_Opc, string gIBSCredPres_Opc, string         
+  gCBSCredPres_Opc, 
+      string gTribCompraGov_Opc)
+
+  📦 PRIORIDADE 3 - Métodos de Suporte:
+
+  6. produtoRTC (linha 115):
+
+  public string produtoRTC(string cProd, string cEAN, string xProd,    
+   string NCM, string NVE_Opc, 
+      string CEST_Opc, string indEscala_Opc, string CNPJFab_Opc,       
+  string cBenef_Opc, 
+      string EXTIPI_Opc, int CFOP, string uCom, string qCom, string    
+   vUnCom, double vProd, 
+      string cEANTrib, string uTrib, string qTrib, string vUnTrib,     
+  double vFrete, 
+      double vSeg, double vDesc, double vOutro, int indTot, string     
+  DI_Opc, 
+      string detExport_Opc, string DetEspecifico_Opc, string 
+  xPed_Opc, string nItemPed_Opc, 
+      string nFCI_Opc, string rastro_Opc, string credPresumido_Opc,    
+   int indBemMovelUsado_Opc)
+
+  7. detalheRTC (linha 197):
+
+  public string detalheRTC(int nItem, string produto, string 
+  imposto, string infAdProd_Opc, 
+      double pDevol_Opc, double vIPIDevol_Opc, string 
+  obsContItem_Opc, string obsFiscoItem_Opc, 
+      double vItem, string DFeReferenciado_Opc)

@@ -1,0 +1,23 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=IRRIG.chm
+Contents file=Menu.hhc
+Default Window=GAS
+Default topic=Inicio.htm
+Display compile notes=No
+Display compile progress=No
+Full-text search=Yes
+Index file=Index.hhk
+Language=0x416 Português (brasileiro)
+Title=Ajuda para SISTEMA IRRIGAÇÃO PENÁPOLIS
+
+[WINDOWS]
+GAS="Ajuda para SISTEMA IRRIGAÇÃO PENÁPOLIS","Menu.hhc","Index.hhk","Inicio.htm","Inicio.htm",,,,,0x62520,,0x3046,,,,,,2,,0
+
+
+[FILES]
+Inicio.htm
+
+[INFOTYPES]
+
+

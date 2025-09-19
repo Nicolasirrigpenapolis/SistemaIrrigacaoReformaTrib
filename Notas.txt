@@ -1,0 +1,549 @@
+﻿11-03-2025
+Usuários 'GABRIEL RICARTE' e 'JERONIMO' liberados para conferência de receita
+
+Solicitado por CESAR
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*
+07-03-2025
+Ajuste na rotina de emissão de Cheque para layout Banco do Brasil. Precisamos imprimir um cheque com a data de 28/02/25, mas no fonte ele sempre printava a data atual.
+                If Not Vazio(Dt_Cheque) Then
+                   .Say 8, 42, Day(Dt_Cheque)
+                   .Say 8, 48, NMes(Dt_Cheque)
+                   .Say 8, 62, Year(Dt_Cheque)
+                Else
+                   .Say 8, 42, Day(Date)
+                   .Say 8, 48, NMes(Date)
+                   .Say 8, 62, Year(Date)
+                End If
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+05-03-2025
+Alteração regra na tela Movimento Estoque Contábil(Novo), grupo ATIVO IMOBILIZADO deveria aparecer para para classificação da NFe 47315 (Mais Tintas) - material utilizado na obra da ponte rolante. Solicitado por MAYSA
+
+" & IIf(vgSituacao <> ACAO_NAVEGANDO, "[Seqüência Grupo Despesa] > 22 AND Inativo = 0", "[Seqüência Grupo Despesa] > 0") & "
+
+
+" & IIf(vgSituacao <> ACAO_NAVEGANDO, "([Seqüência Grupo Despesa] > 22 OR [Seqüência Grupo Despesa] = 15) AND Inativo = 0", "[Seqüência Grupo Despesa] > 0") & "
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+03-03-25
+Permissões usuário EVANDRO ZANETTI na ficha de produção.
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+10-02-25
+Usuário 'YGOR BARBOSA' liberado para receita conferida pela produção
+
+	campo - Lance
+	receita conferida pela produção - Conjuntos
+
+Exclusão de ficha de produção
+Exclusão de Ordem de Produção Interna
+Alteração/Exclusão de itens dentro de uma ficha de produção
+
+ 
+24-01-25
+Usuário 'KLYSSIA EDUARDA' liberada para exclusão de fichas de produção. - solicitaçao CESAR.
+
+Usuário 'JUCELI' liberada para abertura de pedidos de compras (movimento de nfe's de entrada)
+
+14-01-25
+Orçamento 126330 - Bia Brasil removido do controle de pedidos faturados.
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+07-01-25
+Usuário CADU liberado para lançamentos de notas de entrada com mais de 15 dias.
+
+18-12-24
+Atualização funções no forms frmOrçamento
+
+AtualizaValoresConjuntos()
+AtualizaValoresPecas()
+
+Apenas na máquina do faturamento (UTSIP34) por enquanto - É preciso testar as validações no momento da criação dos orçamentos (Vendas).
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+05-12-24
+
+
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+02-12-24
+Ordem de produção interna, ajustes para adição de PEDIDO VINCULADO:
+
+Private Sub MySQL()
+    Dim SQL As String
+    
+    SQL = "SELECT Tipo, SeqOrc, Emissao, SeqGeral, Geral, [Fone 1], GEndereço, GNumero, Celular, GMunicipio, GUF, " & _
+          "GCEP, [CPF e CNPJ], [RG e IE], [Nome da Propriedade], CNPJ, [Inscrição Estadual], PEndereço, PNumero, PMunicipio, " & _
+          "PUF, Observação, SeqTrans, Transportadora, OCliente, OPropriedade, OEndereço, ONumero, OCEP, OFone, OFax, OMunicipio, " & _
+          "OUF, OCPFCNPJ, ORGIE, SeqProp, Produto, [Sigla da Unidade], Quantidade, Vendedor, Localização, [Código de Barras], " & _
+          "OrVinculado, RazVinculado " & _
+          "FROM ("
+    
+    SQL = SQL & "SELECT 'Produtos' AS Tipo, O.[Seqüência do Orçamento] AS SeqOrc, O.[Data de Emissão] AS Emissao, G.[Seqüência do Geral] AS SeqGeral, " & _
+                "G.[Razão Social] AS Geral, G.[Fone 1], G.Endereço AS GEndereço, G.[Número do Endereço] AS GNumero, G.Celular, " & _
+                "MG.Descrição AS GMunicipio, MG.UF AS GUF, G.CEP AS GCEP, G.[CPF e CNPJ], G.[RG e IE], P.[Nome da Propriedade], " & _
+                "P.CNPJ, P.[Inscrição Estadual], P.Endereço AS PEndereço, P.[Número do Endereço] AS PNumero, MP.Descrição AS PMunicipio, " & _
+                "MP.UF AS PUF, O.Observação, Transporte.[Seqüência do Geral] AS SeqTrans, Transporte.[Razão Social] AS Transportadora, " & _
+                "O.[Nome Cliente] AS OCliente, O.[Nome da Propriedade] AS OPropriedade, O.Endereço AS OEndereço, O.[Número do Endereço] AS ONumero, " & _
+                "O.CEP AS OCEP, O.Telefone AS OFone, O.Fax AS OFax, MO.Descrição AS OMunicipio, MO.UF AS OUF, " & _
+                "O.[CPF e CNPJ] AS OCPFCNPJ, O.[RG e IE] AS ORGIE, PO.[Seqüência do Produto] AS SeqProp, Pr.Descrição AS Produto, " & _
+                "U.[Sigla da Unidade], PO.Quantidade, V.[Razão Social] AS Vendedor, Pr.Localização, Pr.[Código de Barras], O.[Orçamento Vinculado] AS OrVinculado, GVinc.[Razão Social] AS RazVinculado " & _
+                "FROM dbo.Orçamento O " & _
+                "INNER JOIN dbo.Geral G ON O.[Seqüência do Geral] = G.[Seqüência do Geral] " & _
+                "LEFT JOIN dbo.Orçamento OVinc ON O.[Orçamento Vinculado] = OVinc.[Seqüência do Orçamento] " & _
+                "LEFT JOIN dbo.Geral GVinc ON OVinc.[Seqüência do Geral] = GVinc.[Seqüência do Geral] " & _
+                "LEFT JOIN dbo.Propriedades P ON O.[Seqüência da Propriedade] = P.[Seqüência da Propriedade] " & _
+                "LEFT JOIN dbo.Municípios MG ON G.[Seqüência Do Município] = MG.[Seqüência Do Município] " & _
+                "LEFT JOIN dbo.Municípios MP ON P.[Seqüência Do Município] = MP.[Seqüência Do Município] " & _
+                "LEFT JOIN dbo.Geral V ON O.[Seqüência Do Vendedor] = V.[Seqüência Do Geral] " & _
+                "INNER JOIN dbo.[Produtos Do Orçamento] PO ON O.[Seqüência Do Orçamento] = PO.[Seqüência Do Orçamento] " & _
+                "INNER JOIN dbo.Produtos Pr ON PO.[Seqüência Do Produto] = Pr.[Seqüência Do Produto] " & _
+                "LEFT JOIN dbo.Unidades U ON Pr.[Seqüência da Unidade] = U.[Seqüência da Unidade] " & _
+                "LEFT JOIN dbo.Municípios MO ON O.[Seqüência Do Município] = MO.[Seqüência Do Município] " & _
+                "LEFT JOIN dbo.Geral Transporte ON O.[Seqüência Da Transportadora] = Transporte.[Seqüência Do Geral] " & _
+                "UNION ALL "
+
+   SQL = SQL & "SELECT 'Conjuntos' Tipo, O.[Seqüência do Orçamento] SeqOrc, O.[Data de Emissão] Emissao, G.[Seqüência do Geral] SeqGeral, " & _ 
+               "G.[Razão Social] Geral, G.[Fone 1], G.Endereço GEndereço, G.[Número do Endereço] GNumero, G.Celular, MG.Descrição GMunicipio, " & _
+               "MG.UF GUF, G.CEP GCEP, G.[CPF e CNPJ], G.[RG e IE], P.[Nome da Propriedade], P.CNPJ, P.[Inscrição Estadual], P.Endereço PEndereço, " & _
+               "P.[Número do Endereço] PNumero, MP.Descrição PMunicipio, MP.UF PUF, O.Observação, Transporte.[Seqüência do Geral] SeqTrans, " & _ 
+               "Transporte.[Razão Social] Transportadora, O.[Nome Cliente] OCliente, O.[Nome da Propriedade] OPropriedade, O.Endereço OEndereço, " & _
+               "O.[Número do Endereço] ONumero, O.CEP OCEP, O.Telefone OFone, O.Fax OFax, MO.Descrição OMunicipio, MO.UF OUF, O.[CPF e CNPJ] OCPFCNPJ, " & _
+               "O.[RG e IE] ORGIE, CO.[Seqüência do Conjunto] SeqProp, C.Detalhes Produto, 'UN' [Sigla da Unidade], CO.Quantidade, V.[Razão Social] Vendedor, C.Localização, '' As [Código de Barras], O.[Orçamento Vinculado] AS OrVinculado, GVinc.[Razão Social] AS RazVinculado "
+   SQL = SQL & "FROM Orçamento O INNER JOIN Geral G ON O.[Seqüência do Geral] = G.[Seqüência do Geral] " & _
+               "LEFT JOIN dbo.Orçamento OVinc ON O.[Orçamento Vinculado] = OVinc.[Seqüência do Orçamento] " & _
+               "LEFT JOIN dbo.Geral GVinc ON OVinc.[Seqüência do Geral] = GVinc.[Seqüência do Geral] " & _
+               "LEFT JOIN Propriedades P ON O.[Seqüência da Propriedade] = P.[Seqüência da Propriedade] " & _ 
+               "LEFT JOIN Municípios MG ON G.[Seqüência Do Município] = MG.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Municípios MP ON P.[Seqüência Do Município] = MP.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral v ON O.[Seqüência Do Vendedor] = v.[Seqüência Do Geral] " & _ 
+               "INNER JOIN [Conjuntos Do Orçamento] CO ON O.[Seqüência Do Orçamento] = CO.[Seqüência Do Orçamento] " & _ 
+               "INNER JOIN Conjuntos C ON CO.[Seqüência Do Conjunto] = C.[Seqüência Do Conjunto] " & _ 
+               "LEFT JOIN Municípios MO ON O.[Seqüência Do Município] = MO.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral Transporte ON O.[Seqüência Da Transportadora] = Transporte.[Seqüência Do Geral] " & _ 
+               "UNION ALL "
+   SQL = SQL & "SELECT 'Conjuntos' Tipo, O.[Seqüência do Orçamento] SeqOrc, O.[Data de Emissão] Emissao, G.[Seqüência do Geral] SeqGeral, " & _
+               "G.[Razão Social] Geral, G.[Fone 1], G.Endereço GEndereço, G.[Número do Endereço] GNumero, G.Celular, MG.Descrição GMunicipio, " & _
+               "MG.UF GUF, G.CEP GCEP, G.[CPF e CNPJ], G.[RG e IE], P.[Nome da Propriedade], P.CNPJ, P.[Inscrição Estadual], P.Endereço PEndereço, " & _
+               "P.[Número do Endereço] PNumero, MP.Descrição PMunicipio, MP.UF PUF, O.Observação, Transporte.[Seqüência do Geral] SeqTrans, " & _ 
+               "Transporte.[Razão Social] Transportadora, O.[Nome Cliente] OCliente, O.[Nome da Propriedade] OPropriedade, O.Endereço OEndereço, " & _
+               "O.[Número do Endereço] ONumero, O.CEP OCEP, O.Telefone OFone, O.Fax OFax, MO.Descrição OMunicipio, MO.UF OUF, O.[CPF e CNPJ] OCPFCNPJ, " & _
+               "O.[RG e IE] ORGIE, PO.[Seqüência do Produto] SeqProp, Pr.Descrição Produto, U.[Sigla da Unidade], PO.Quantidade, V.[Razão Social] Vendedor, Pr.Localização, Pr.[Código de Barras], O.[Orçamento Vinculado] AS OrVinculado, GVinc.[Razão Social] AS RazVinculado "
+   SQL = SQL & "FROM Orçamento O INNER JOIN Geral G ON O.[Seqüência do Geral] = G.[Seqüência do Geral] " & _
+               "LEFT JOIN dbo.Orçamento OVinc ON O.[Orçamento Vinculado] = OVinc.[Seqüência do Orçamento] " & _
+               "LEFT JOIN dbo.Geral GVinc ON OVinc.[Seqüência do Geral] = GVinc.[Seqüência do Geral] " & _
+               "LEFT JOIN Propriedades P ON O.[Seqüência da Propriedade] = P.[Seqüência da Propriedade] " & _ 
+               "LEFT JOIN Municípios MG ON G.[Seqüência Do Município] = MG.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Municípios MP ON P.[Seqüência Do Município] = MP.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral v ON O.[Seqüência Do Vendedor] = v.[Seqüência Do Geral] " & _ 
+               "INNER JOIN [Peças Do Orçamento] PO ON O.[Seqüência Do Orçamento] = PO.[Seqüência Do Orçamento] " & _ 
+               "INNER JOIN Produtos Pr ON PO.[Seqüência Do Produto] = Pr.[Seqüência Do Produto] " & _ 
+               "LEFT JOIN Unidades U ON Pr.[Seqüência da Unidade] = U.[Seqüência da Unidade] " & _ 
+               "LEFT JOIN Municípios MO ON O.[Seqüência Do Município] = MO.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral Transporte ON O.[Seqüência Da Transportadora] = Transporte.[Seqüência do Geral] " & _
+               "UNION ALL "
+   SQL = SQL & "SELECT 'Serviços' Tipo, O.[Seqüência do Orçamento] SeqOrc, O.[Data de Emissão] Emissao, G.[Seqüência do Geral] SeqGeral, " & _
+               "G.[Razão Social] Geral, G.[Fone 1], G.Endereço GEndereço, G.[Número do Endereço] GNumero, G.Celular, MG.Descrição GMunicipio, " & _
+               "MG.UF GUF, G.CEP GCEP, G.[CPF e CNPJ], G.[RG e IE], P.[Nome da Propriedade], P.CNPJ, P.[Inscrição Estadual], P.Endereço PEndereço, " & _
+               "P.[Número do Endereço] PNumero, MP.Descrição PMunicipio, MP.UF PUF, O.Observação, Transporte.[Seqüência do Geral] SeqTrans, " & _ 
+               "Transporte.[Razão Social] Transporte, O.[Nome Cliente] OCliente, O.[Nome da Propriedade] OPropriedade, O.Endereço OEndereço, " & _
+               "O.[Número do Endereço] ONumero, O.CEP OCEP, O.Telefone OFone, O.Fax OFax, MO.Descrição OMunicipio, MO.UF OUF, O.[CPF e CNPJ] OCPFCNPJ, " & _
+               "O.[RG e IE] ORGIE, SO.[Seqüência do Serviço] SeqProp, S.Descrição Produto, 'SER' [Sigla da Unidade], SO.Quantidade, V.[Razão Social] Vendedor, '' As Localização, '' As [Código de Barras], O.[Orçamento Vinculado] AS OrVinculado, GVinc.[Razão Social] AS RazVinculado "
+   SQL = SQL & "FROM Orçamento O INNER JOIN Geral G ON O.[Seqüência do Geral] = G.[Seqüência do Geral] " & _
+               "LEFT JOIN dbo.Orçamento OVinc ON O.[Orçamento Vinculado] = OVinc.[Seqüência do Orçamento] " & _
+               "LEFT JOIN dbo.Geral GVinc ON OVinc.[Seqüência do Geral] = GVinc.[Seqüência do Geral] " & _
+               "LEFT JOIN Propriedades P ON O.[Seqüência da Propriedade] = P.[Seqüência da Propriedade] " & _ 
+               "LEFT JOIN Municípios MG ON G.[Seqüência Do Município] = MG.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Municípios MP ON P.[Seqüência Do Município] = MP.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral v ON O.[Seqüência Do Vendedor] = v.[Seqüência Do Geral] " & _ 
+               "INNER JOIN [Serviços Do Orçamento] SO ON O.[Seqüência Do Orçamento] = SO.[Seqüência Do Orçamento] " & _ 
+               "INNER JOIN Serviços S ON SO.[Seqüência Do Serviço] = S.[Seqüência Do Serviço] " & _ 
+               "LEFT JOIN Municípios MO ON O.[Seqüência Do Município] = MO.[Seqüência Do Município] " & _ 
+               "LEFT JOIN Geral Transporte ON O.[Seqüência Da Transportadora] = Transporte.[Seqüência Do Geral] " & _
+               ")A "
+   SQL = SQL & "WHERE SeqOrc = " & OrcamentoTela & _
+               " ORDER BY Tipo Desc"
+               
+   vgQueryAtual = SQL
+   
+   botOk_Click
+   
+End Sub
+
+COMO ESTÁ SENDO CHAMADO NO FORMULÁRIO DO GAS:
+Orcamento!OrVinculado & " - " & Orcamento!RazVinculado
+
+28-11-24
+	Alteração na função seguinte com o propósito de sanar um bug na venda de produtos de reposição para o pivô, onde devem ter o seu valor inserido no orçamento sendo, (valor de custo * 3.5). 
+	SÓ DEVEM SER AFETADOS: PRODUTOS QUE ESTEJAM NO GRUPO 20 (PIVÔ CENTRAL) E QUE CONTENHAM EM SUA RECEITA O ITEM 43602 (Galvanização A Fogo Em Peças Pivô). A LÓGICA NÃO DEVE SER REPLICADA PARA PEÇAS, ONDE DEVE-SE TER A TRATATIVA DE CONJUNTO DE IRRIGAÇÃO.
+
+Private Function InfoProdutos("{* Apelidos *} 730", Oq As String) As Variant
+      Case "Valor Unitário" 'alteração em 28-11-2024 (estava amarrando antes com o campo Sequencia_do_Produto_Orcamento)
+         Set MP = vgDb.OpenRecordSet("SELECT * From [Matéria Prima] WHERE [Seqüência do Produto] = " & Sequencia_do_Produto & " And [Seqüência da Matéria Prima] = 43602")
+         If ProdutoAux![Seqüência Do Grupo Produto] = 20 And MP.RecordCount > 0 Then 'peças do pivo galvanizada
+         InfoProdutos = ProdutoAux![Valor de Custo] * 3.5
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+26-11-24
+Usuários "MARIA FERNANDA" e "ANA JULIA" liberadas para comissão
+
+Usuário "KLYSSIA EDUARDA" liberada para a impressão das Fichas de Produção
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+23-10-24
+Ajuste orçamentos follow up
+
+17-10-2024
+Alteração senha usuário da caveira - solicitado por Andreza.
+*ps: senha solicitada no baixa do contas a receber quando não há a vinculação de um banco à uma baixa.
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+20-09-2024
+Liberação Usuário "RODRIGO" para exclusão de fichas de produção.
+OBS.: Eu ja havia colocado essa lógica no formulário frmpedprod, mas estava escrita errada. O que incapacitou até mesmo o usuário adm "YGOR" de realizar a exclusão.
+
+Lógica errada:
+vgPWUsuario = "YGOR" AND vgPWUsuario = "RODRIGO" And Finalizado = 0
+
+Lógica correta:
+(vgPWUsuario = "YGOR" OR vgPWUsuario = "RODRIGO") And Finalizado = 0
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+19-09-2024 (Primeira emissão com CST 70 do ERP Irrigação de forma automatizada)
+
+Alteração 2.:
+
+Correção de Base de Cálculo do PIS e COFINS para caso de Venda de balcão (Produtos) Com Frete!
+Orçamento base: 124582 - Extratora de Areia Uniao Ltda
+
+Situação: Adicionado ValorFrete na composição da Base de cálculo do PIS e COFINS
+
+![Bc Pis] = Round(((Produtos_do_Orcamento!Quantidade * Produtos_do_Orcamento![Valor Unitário]) - ![Valor Do Icms] - ![Valor Do Desconto] + ValorFrete), 2)
+![Bc Cofins] = Round(((Produtos_do_Orcamento!Quantidade * Produtos_do_Orcamento![Valor Unitário]) - ![Valor Do Icms] - ![Valor Do Desconto] + ValorFrete), 2)
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+Alteração 1.:
+
+ALTERAÇÃO NA FUNÇÃO GLOBAL CALCULAIMPOSTO() PARA CORREÇÃO DA LÓGICA EM CASOS DE VENDAS COM ICMS-ST! Até esta atualização o sistema estava trazendo o CST de forma errada, considerando o cst 20 e sofrendo rejeição da sefaz por não ser cst aceito para ICMS-ST. Mudança aplicada em conformidade com a Contabilidade.
+	Orçamentos base para testes:
+	124325 e 124326 - G.C.G. Irrigações Ltda - Epp
+
+Informativo:
+
+TABELA “B” – TRIBUTAÇÃO PELO ICMS (CST)
+70 – Com redução de base de cálculo e cobrança do ICMS por substituição tributária
+20 – Com redução de base de cálculo
+10 – Tributada e com cobrança do ICMS por substituição tributária
+
+
+Case "5" 'CST 'Alteração em 19/09/2024 - Inserção e validação do CST 70 na lógica
+         If Suframa Then CalculaImposto = "040": Exit Function
+         If ProdutorPaulista And TB2![Produto Diferido] And Not Tb1!Usado Then CalculaImposto = "051": Exit Function
+         If Not ForadoEstado And Sucata Then CalculaImposto = "051": Exit Function ' Sucata dentro da UF é Diferido
+         If TB2![Redução de Base de Cálculo] And Not (Revenda And Substituicao And Not MateriaPrima) Then CalculaImposto = "020": Exit Function 'Redução de BC
+         If OrgonPublico And Not ForadoEstado Then CalculaImposto = "040": Exit Function 'Orgon Publico
+         If Importado And Not ForadoEstado And Sucata Then CalculaImposto = "151": Exit Function 'Sucata e Produto Importado e Diferido
+         If Not ForadoEstado And Sucata Then CalculaImposto = "051": Exit Function ' Sucata dentro da UF é Diferido
+         If Importado And ForadoEstado And Sucata Then CalculaImposto = "100": Exit Function 'Produto Importado
+         If ForadoEstado And Sucata Then CalculaImposto = "000": Exit Function
+         If Importado And ForadoPais Then CalculaImposto = "141": Exit Function 'Exterior e Produto Importado
+         If ForadoPais Then CalculaImposto = "041": Exit Function 'Exterior
+         If Importado And ProdutorPaulista And TB2![Produto Diferido] And Not Tb1!Usado Then CalculaImposto = "151": Exit Function 'Produtor Paulista, Item Diferido e Item Novo e Produto Importado
+         If ProdutorPaulista And TB2![Produto Diferido] And Not Tb1!Usado Then CalculaImposto = "051": Exit Function 'Produtor Paulista, Item Diferido e Item Novo
+         If Importado And Revenda And Substituicao And Not MateriaPrima Then CalculaImposto = "110": Exit Function 'Substituição, Revenda, Produto Importado, fABRICAÇÃO pROPRIA kkkkk
+         If Importado And Substituicao And MateriaPrima Then CalculaImposto = "160": Exit Function 'Substituição, Materia Prima e Produto Importado
+         If Substituicao And MateriaPrima And NCM2 = "85071090" Then CalculaImposto = "060": Exit Function 'Substituição e M.Prima
+         If Substituicao And Not Revenda And Not MateriaPrima Then CalculaImposto = "000": Exit Function
+         If Importado And Substituicao And Not Revenda And Not MateriaPrima Then CalculaImposto = "100": Exit Function
+         If Importado And TB2![Redução de Base de Cálculo] Then CalculaImposto = "020": Exit Function 'Redução de BC e Produto Importado
+         'If TB2![Redução de Base de Cálculo] Then CalculaImposto = "020": Exit Function 'Redução de BC
+         If Importado And Not Substituicao Then CalculaImposto = "100": Exit Function 'Produto Importado
+         If Imobilizado = 4 Then CalculaImposto = "040": Exit Function 'Ativo Imobilizado
+         If Revenda And Substituicao And Not MateriaPrima And Not TB2![Redução de Base de Cálculo] Then CalculaImposto = "010": Exit Function
+         If Revenda And Substituicao And Not MateriaPrima And TB2![Redução de Base de Cálculo] Then CalculaImposto = "070": Exit Function
+            CalculaImposto = "000": Exit Function ' se não cai em nenhum acima cata 00 tributada integralmente
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+11-09-2024
+1. Função AtualizaValorProdutos() no frmOrcamento alterada para correção de erros de arredondamento.
+2. Usuário "RODRIGO" com permissão de excluir fichas de produção
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+02-09-2024
+
+Alteração no relatório de última cotação. Botão "Desatualizados" inserido na tela para imprimir apenas os produtos marcados em vermelho.
+Função PodeImprimir reescrita.
+
+Private Function PodeImprimir(Optional Item As Long) As Boolean
+ Dim TemReceita As New GRecordSet
+ Dim Desatualizados As New GRecordSet
+ 
+  If Item = 0 Then
+     Set TemReceita = vgDb.OpenRecordSet("SELECT * From [Matéria Prima] Where [Seqüência da Matéria Prima] = " & Produtos![Seqüência Do Produto])
+     Set Desatualizados = vgDb.OpenRecordSet("SELECT Max([Data do Pedido]) UltCompra From [Pedido de Compra Novo] Left Join [Produtos do Pedido Compra] On [Pedido de Compra Novo].[Id do Pedido] = [Produtos do Pedido Compra].[Id do Pedido] Where Cancelado = 0 And [Id do Produto] = " & Produtos![Seqüência Do Produto])
+  Else
+     Set TemReceita = vgDb.OpenRecordSet("SELECT * From [Matéria Prima] Where [Seqüência da Matéria Prima] = " & Item)
+     Set Desatualizados = vgDb.OpenRecordSet("SELECT Max([Data do Pedido]) UltCompra From [Pedido de Compra Novo] Left Join [Produtos do Pedido Compra] On [Pedido de Compra Novo].[Id do Pedido] = [Produtos do Pedido Compra].[Id do Pedido] Where Cancelado = 0 And [Id do Produto] = " & Item)
+  End If
+  
+   
+   If apenasDesatualizados Then ' Testa se o botão "Desatualizados" está flegado.
+     If TemReceita.RecordCount > 0 Then 'Testa se o item está presente na receita de algum outro item.
+       If Desatualizados!UltCompra <= DateAdd("D", -60, Date) Then
+         PodeImprimir = True
+       End If
+     Else
+        PodeImprimir = False
+     End If
+   Else ' Se o botão não estiver apertado, então executa a rotina como era antes.
+     If TemReceita.RecordCount > 0 Then
+       PodeImprimir = True
+     End If
+   End If
+End Function
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+30-08-24
+
+Ajuste no relatório da ficha de produção.
+Solicitação: Impressão de um único item por página.
+Alteração feita no elemento "quadradinho" responsável pelas quebras.
+  Saltar Página: 1 - A cada reg de produto.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+29-08-24
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+Atualização 02: Correção! Tirando a validação pra não trazer material adquirido de terceiro
+
+
+Private Sub MontaReceita()
+
+'Mudança na lógica de como será produzido através da ficha. Implantação em ambiente de produção em 29/08/24
+' Responsável por trazer apenas a receita do item que pretendo produzir, incluindo os semi prontos!
+'O setor da produção decidirá acerca da necessidade de produzir ou não os semi prontos da receita, para começarmos a lidar com a ideia de "o que já tem produzido" / "controle de estoque"
+
+SQL = ";WITH SuperQtde(MateriaPrima, QtdeUsada, Produto, Descricao, [Tipo do Produto]) AS ( " & _
+      "SELECT M.[Seqüência da Matéria Prima], M.[Quantidade de Matéria Prima], P.[Seqüência do Produto], P.Descrição, P.[Tipo do Produto] " & _
+      "FROM Produtos AS P " & _
+      "INNER JOIN [Matéria Prima] AS M ON P.[Seqüência do Produto] = M.[Seqüência do Produto] " & _
+      "WHERE P.[Seqüência do Produto] = " & Sequencia_do_Produto & " " & _
+      ") " & _
+      "SELECT S.MateriaPrima, P.Descrição AS DescMat, U.[Sigla da Unidade] AS Unidade, " & _
+      "P.[Quantidade no Estoque] AS QtdeEstoque, P.[Quantidade Contábil] AS QtdeContabil, " & _
+      "P.[Valor de Custo] AS CustoMaterial, S.QtdeUsada, " & _
+      "ROUND(S.QtdeUsada * P.[Valor de Custo], 4) AS CustoTotal, " & _
+      "S.Produto, S.Descricao, S.[Tipo do Produto] " & _
+      "FROM SuperQtde AS S " & _
+      "INNER JOIN Produtos AS P ON S.MateriaPrima = P.[Seqüência do Produto] " & _
+      "LEFT JOIN Unidades AS U ON P.[Seqüência da Unidade] = U.[Seqüência da Unidade] " & _
+      "ORDER BY S.MateriaPrima;"
+
+Inserção no relatório  da ficha - Montagem e Solda
+
+Inversão da função do booleano imprimir na ficha de produção! - Agora irá imprimir o que não estiver flegado e o que não for produzir será flegado para que não saia na ficha impressa
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+27-08-24
+Lógica inserida no ORÇAMENTO, campo percentual de comissão da revenda.
+
+Situação: O Fabio está trabalhando em orçamentos para o Paraguai, através da revenda Sistemas de Irrigações G & E Ltda e para estes casos, a comissão pode chegar até 20%, diferenciando-se do valor generalista de 10% para os demais orçamentos.
+
+IIf((MunicipioAux!UF = "EX" And Vendedor_Intermediario = "Sistemas de Irrigações G & E Ltda"), (Percentual_do_Vendedor > 0) And Percentual_do_Vendedor <= 20, (Percentual_do_Vendedor > 0) And Percentual_do_Vendedor <= 10)
+
+Usuário "PIETRA" liberada para a impressão das Fichas de Produção
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+16-08-24
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+1)    Pvt Sub AtualizaValoresProdutos()
+	'alterado em 16/08/2024 com base no orçamento 120949 - Correção no cálculo do IPI considerando ValorFrete na base de cálculo
+	![Valor Do IPI] = CalculaImposto(![Seqüência Do Produto], Orcamento![Seqüência Do Geral], 8, 1, !Quantidade * ![Valor Unitário] + ValorAcresDesc + ValorFrete, 0, Orcamento![Seqüência da Propriedade], , , MunicipioAux!Uf)
+
+	Lógica alterada em conformidade com a contabilidade, onde o valor do frete passa a compor a base de cálculo do IPI.
+
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+2)  
+     Pvt Sub AtualizaValoresProdutos()
+	If ReducaoAuxiliar > 0 Then 'Alterado em 15/08/24 - Orçamento base.: 121089
+            VrItem = Round(((Produtos_do_Orcamento!Quantidade * Produtos_do_Orcamento![Valor Unitário]) + Produtos_do_Orcamento![Valor Do IPI] + ValorAcresDesc + ValorFrete), 2)
+	    VrReducao = Round((VrItem * ReducaoAuxiliar / 100), 2)	    
+            VrItem = VrItem - VrReducao '+ ValorFrete (alterado em 15/08/24) - Orçamento base.: 121089
+	
+	A lógica foi alterada conforme validação da contabilidade para casos de redução da BC. O valor do frete foi adicionado ao valor do item antes da redução. Anteriormente a redução da BC estava sendo calculada sem o valor do frete, que era acrescido ao valor do item depois de reduzido.
+
+3) Liberação dos usuários "MAYSA" e "ANDREZA" para visualização do Valor de Custo no Cadastro dos Produtos
+
+4) Melhorias nos relatórios Orçamento e Itens Pivô (orçamento enviado ao cliente). O rateio do desconto será computado nos relatórios de Projeto de Pivô (RelImpIt) e Orçamento (frmOrcament). Ambos alterados na função ProssegueExecucao().
+
+5) frmNotaFisc() 
+   Alteração nas funções:
+
+Private Sub ComandosPecas2()
+Private Sub ComandosProdutos2()
+Private Sub ComandosConjuntos2()
+INCLUSÃO DO CST 90 PARA A FUNÇÃO DO CONTROL + F2
+
+If InputArmando = "00" Or InputArmando = "10" Or InputArmando = "20" Or InputArmando = "50" Or InputArmando = "51" Or InputArmando = "40" Or InputArmando = "41" Or InputArmando = "60" Or InputArmando = "90" Then
+
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+15-08-24
+Usuários "ALEXANDRE DESIATO" e "CESAR" liberados para a impressão das Fichas de Produção.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+14-08-24
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+Ajustes no relatório de controle de pedidos faturados, satisfazendo as seguintes condições:
+	PEDIDO Nº 123902 - LEANDRO BROGIN MORELLI
+	Valor total do pedido R$ 300.000,00
+	cliente realizou os seguintes depósitos:
+	R$ 20.000,00 
+	R$ 60.000,00
+	R$ 46.579,00
+	R$ 52.000,00
+	R$ 100.000,00
+	Totalizando valor de entrada = R$ 278.579,00
+	Porém o acordado era 70% de entrada do pedido, ou seja, o valor de R$ 	210.000,00
+	Então dia 23/07 nós fizemos o estorno para o cliente no valor de R$ 68.579,00
+	Então na planilha tem que aparecer o seguinte:
+	Valor total: R$ 300.000,00
+	Valor recebido: R$ 210.000,00
+	Valor Restante: R$ 90.000,00
+
+	Condição imposta na função pvt MostraPago() - *****LEMBRETE**** - TRATAMENTO DE CASOS COMO ESSE NO FONTE: VINCULAR A SEQ DO ORÇAMENTO NA MVTO DA CC, E QUANDO FOR UMA SAÍDA, DEVE-SE SUBTRAIR O VALOR DO MONTANTE.	
+
+	PEDIDO Nº 123743 - EDVALDO DA COSTA MELLO
+	O que ocorreu neste caso é que o cliente efetuou o primeiro pedido sendo o nº 	119821 (o qual gerou a nota fiscal nº 20512 no valor de R$ 46.000,00)
+	Porém chegando o produto em sua propriedade verificou que pediu os tubos 	errados, trouxe de volta e emitiu uma nota fiscal de devolução nº 99)
+	Com isto fizemos um novo pedido sendo o nº 123743, mas como já tínhamos 	efetuado a baixa do recebimento no 1º pedido, não consigo vincular a esta 	novo, só coloquei na proposta que o depósito já sido efetuado, porém o 	sistema não faz esta leitura do campo observações do orçamento, então é o 	seguinte:
+	Valor total: R$ 46.500,00
+	Valor recebido: R$ 46.000,00
+	Valor Restante: R$ 500,00
+		
+	Ajuste pelo sistema: Na movimentação da CC troquei o vínculo dos orçamentos
+
+	PEDIDO Nº 123762 - JOSE CARLOS DE BESSA
+	Este caso é o do cliente que realizou o pedido do pivô em 2022 e não pagou 	todas as parcelas
+	O que ocorreu neste caso é que o cliente efetuou o primeiro pedido sendo o nº 	100379 (o qual gerou a nota fiscal nº 17243 no valor de R$ 400.000,00)
+	cliente realizou os seguintes depósitos:
+	R$ 70.000,00 - dia 28/01/2022
+	R$ 30.000,00 - dia 03/03/2022
+	Ai neste ano retomou a negociação conforme o novo pedido nº 123762 no valor 	de R$ 435.000,00, então precisamos vincular os recebimentos acima mencionados 	neste novo pedido e também o cliente realizou outro pagamento neste pedido 	sendo o valor de R$ 210.000,00 dia 27/06/2024, então na planilha tem que 	aparecer o seguinte:
+	Valor total: R$ 435.000,00
+	Valor recebido: R$ 310.000,00
+	Valor Restante: R$ 125.000,00
+	
+	Mesma resolução para o orçamento acima.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+07/08/2024
+Usuário Michael liberado para a impressão das Fichas de Produção
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+26/07/2024
+Alteração do Logo no relatório de contas a pagar por conta
+
+Atualização de relatórios do Financeiro (Comissão)
+Conta do Vendedor - Comissão dos Vendedores
+Alterado o nome do módulo, tela e relatório para "Prêmio"
+
+Conta do Vendedor - Comissão dos Vendedores (menu2)
+Alterado o nome do módulo para "Prêmio"
+
+Recebidas (Base de Comissão)
+Alterado nome do módulo e nome da tela
+
+Inclui Comissão
+Alterado nome do módulo e da tela para "Prêmio"
+
+Resumo - Comissão Pagas e Comissão Não Pagas e Resumo Comissão
+Alterado nome do módulo, da tela e do relatório para "Prêmio"
+
+Libera Comissão
+Alterado nome do módulo e da tela para "Prêmio"
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+15/07/2024
+Atualização 01 - Validação no campo Telefone para orçamentos avulsos. 
+Trava aplicada no frmOrcamento (Através da tela F4) e frmNovoPrg - projeto de pivô (Incluído na Pvt Sub Alteracao()
+
+Atualização 02 - 17h38min
+BC ICMS das peças e conjuntos alterada. Frete compondo a BC antes da redução. frmOrcamento - Pvt Function Atualizavalorconjunto() e Pvt Function AtualizavalorPecas()	
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+04-07-24
+1. Ajuste no relatório Controle - Pedidos Faturados
+O orçamento 121088 (Hermann P. Hoffmann), com a seq. Baixa contas a receber de nº 208899 não gerou mvto da c.c., que é a tabela responsável por alimentar as colunas [Valor Total], [Valor Recebido] e [Valor Restante] na tabela do FollowUp - responsável pela impressão do relatório de controle de pedidos.
+
+Foi feita uma lógica com função ternária para a correção do orçamento em questão, que foi pago através de crédito de ICMS Ecredac (vide histórico da baixa)
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+03-07-24
+1. Correção relatório Ficha de Produção:
+	Remoção do texto "Responsável Vanderlei"
+	Lógica para a linha onde preenchia Cliente de forma fixa, ficando 	invisível se não tiver orçamento associado à ficha e preenchida 	quando houver.
+
+2. Liberação usuário CADU para abrir o campo booleano "Fechado" nos pedidos de compras. Motivo: Para casos de pedidos parciais - conferência de notas. Esta função era de responsabilidade do usuário Fredy, que tinha essa permissão.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+01-07-24
+Atualização frmCalccabos - Projeto de Pivô.
+
+Alteração da função pvt function percentual(), coeficiente de segurança alterado de 85% para 55%, com o objetivo de reduzir o custo nos cabos do autotrafo. Documento assinado pelo Alexandre em 01/07/2024
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+19-06-24
+1. Usuário AVILA mesma permissão do usuário WAGNER na função ValidaDesconto()
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+06-06-24
+1. Liberação campo booleano "Trava Receita" ao usuário BARBARA. Nos cadastros dos Produtos e Conjuntos. Solicitado por Maysa
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+03-06-24
+1. Liberação usuário "RICARDO" marcar booleano imprimir dentro da ficha de produção - Solicitado por Rodrigo
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+29-05-24
+Remoção travas implantadas em 20-5-24 - Solicitado por Alexandre e Andreza (e-mail 28/05/2024)
+
+“Pede pra liberar para que possam dar andamento, e deixa ressalva sobre a obrigação de conferencias priorizando os pedidos fechados.
+
+Estamos atrasando muito as cotações.”
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+20-05-24
+Travas no orçamento se a receita não estiver conferida com exceção para material adquirido de terceiro. Criadas funções no frmOrcamento.
+Private Function validaReceitaConferidaProd
+Private Function validaReceitaConferidaPecas
+Private Function validaReceitaConferidaConj
+Private Function NCMPecas (estava sem trava de NCM para peças)
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+15-05-24
+1) Private function AtualizaValoresProdutos() - no frmOrcamento
+![Valor do IPI] = subtração do desconto rateado da base de calc do IPI
+
+2) Correção CEP relatório ORÇAMENTO - Emissão!
+*OBS.: NÃO FUNCIONA EDIÇÃO DIRETO NO RELATÓRIO PQ O ABENÇOADO COLOCOU A ALTERAÇÃO NO FONTE.
+
+3) Correção LOGO relatório Extrato conta vendedor.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+14-05-24
+1. Liberação usuário Rodrigo para alterar o campo booleano Lance nos Cadastros de Produtos.
+
+2. Liberação usuário RENAN para incluir Ordens de produções internas e fichas de produções.
+
+3. Financeiro - tela transf. entre contas, criado uma nova caixa texto formato memo para descrição de histórico nas transferências internas entre bancos, solicitado pela Letícia.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+14-05-24
+Relatório controle de pedido de compras
+Adicionado novo campo na tela para filtrar pedidos por forma de pagamento (Prazo ou Antecipado) - Solicitado pelo Alexandre.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+07/05/2024
+Correção CEP 16309-899 nos relatórios
+
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+30-04-24
+Alteração função pública calculaImposto
+
+AliqBC corrigida para diferentes casos com carga tributária de ICMS
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+25/04/2024
+Liberação campo receita conferida ao usuário Rodrigo.
+
+Solicitação do usuário Vanderlei, que sairá de férias.
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+19-04-24 17h35min
+- Adequação Relatório compras
+
+- Relatório Conferência: mudança da ordenação de valor para seq produto
+
+- Correção do relatório que havia quebrado no financeiro
+*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-
+
+
+
+
