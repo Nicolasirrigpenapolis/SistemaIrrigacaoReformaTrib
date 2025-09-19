@@ -3641,6 +3641,8 @@ Private Sub BlasterNFe500()
     'NOVOS TOTAIS RTC
     Dim vIS As Double, IBSCBSTot As String, vNFTot As Double
     Dim vIBSTotal As Double, vCBSTotal As Double, vBCIBSCBS As Double
+    'TOTAIS TRADICIONAIS PARA ICMSTot
+    Dim vBCICMS As Double  'Base de cálculo ICMS acumulada
 
     'VARIÁVEIS AUXILIARES RTC
     Dim gIBSUF_xml As String, gIBSMun_xml As String, gCBS_xml As String, gIBSCBS_xml As String
@@ -4615,10 +4617,271 @@ ContinuarProcessamento:
                                           0, 0, 0, 0, Prod_indTot, "", "", "", "", "", "", "", "", 0)
         Debug.Print "DEBUG: produtoRTC OK"
 
-        'Imposto RTC combinado (IS + IBSCBS + impostos tradicionais se houver)
-        Debug.Print "DEBUG: Combinando impostos..."
-        det_imposto = det_IS & det_IBSCBS
-        Debug.Print "DEBUG: Impostos combinados OK"
+        '==========================================
+        ' IMPOSTOS TRADICIONAIS (OBRIGATÓRIOS OUTUBRO 2025)
+        '==========================================
+        Debug.Print "DEBUG: Gerando impostos tradicionais..."
+
+        'DEBUG: Verificar se recordset Item esta valido
+        If Item Is Nothing Then
+            Debug.Print "ERRO: Recordset Item é Nothing"
+            Exit Do
+        End If
+
+        If Item.EOF Then
+            Debug.Print "ERRO: Recordset Item está no EOF"
+            Exit Do
+        End If
+
+        Debug.Print "DEBUG: Recordset Item válido, verificando campos..."
+
+        Dim valorICMS As Double, valorPIS As Double, valorCOFINS As Double
+
+        'Testar campo [Valor do ICMS]
+        Debug.Print "DEBUG: Testando campo [Valor do ICMS]..."
+        valorICMS = 0
+        If Not IsNull(Item![Valor do ICMS]) Then
+            valorICMS = CDbl(Item![Valor do ICMS])
+            Debug.Print "DEBUG: [Valor do ICMS] = " & valorICMS
+        Else
+            Debug.Print "DEBUG: [Valor do ICMS] é NULL, usando 0"
+        End If
+
+        'Testar campo [Valor do PIS]
+        Debug.Print "DEBUG: Testando campo [Valor do PIS]..."
+        valorPIS = 0
+        If Not IsNull(Item![Valor do PIS]) Then
+            valorPIS = CDbl(Item![Valor do PIS])
+            Debug.Print "DEBUG: [Valor do PIS] = " & valorPIS
+        Else
+            Debug.Print "DEBUG: [Valor do PIS] é NULL, usando 0"
+        End If
+
+        'Testar campo [Valor do Cofins]
+        Debug.Print "DEBUG: Testando campo [Valor do Cofins]..."
+        valorCOFINS = 0
+        If Not IsNull(Item![Valor do Cofins]) Then
+            valorCOFINS = CDbl(Item![Valor do Cofins])
+            Debug.Print "DEBUG: [Valor do Cofins] = " & valorCOFINS
+        Else
+            Debug.Print "DEBUG: [Valor do Cofins] é NULL, usando 0"
+        End If
+
+        'Calcular valor total dos tributos
+        Dim vTotTrib As Double
+        vTotTrib = valorICMS + valorPIS + valorCOFINS
+        Debug.Print "DEBUG: vTotTrib calculado = " & vTotTrib
+
+        '1. ICMS TRADICIONAL
+        Dim ICMS_xml As String
+        Debug.Print "=== DEBUG ICMS TRADICIONAL ==="
+        Debug.Print "Valor do ICMS: " & Item![Valor do ICMS]
+        Debug.Print "CST: " & Item!CST
+        Debug.Print "Verificando métodos ICMS da FlexDocs..."
+
+        On Error Resume Next
+        If CDbl(Item![Valor do ICMS]) > 0 Then
+            'ICMS tributado - usar dados do banco
+            Debug.Print "Tentando ICMS00 com parâmetros:"
+            Debug.Print "- CST: " & CStr(Item!CST)
+            Debug.Print "- orig: 0"
+            Debug.Print "- modBC: 3"
+            Debug.Print "- vBC: " & CDbl(Item![Valor da Base de Cálculo])
+            Debug.Print "- pICMS: " & CDbl(Item![Alíquota do ICMS])
+            Debug.Print "- vICMS: " & CDbl(Item![Valor do ICMS])
+
+            ICMS_xml = objNFeUtil.ICMS00(CStr(Item!CST), "0", "3", _
+                                        CDbl(Item![Valor da Base de Cálculo]), _
+                                        CDbl(Item![Alíquota do ICMS]), _
+                                        CDbl(Item![Valor do ICMS]))
+            If Err.Number <> 0 Then
+                Debug.Print "ERRO ICMS00: " & Err.Number & " - " & Err.Description
+                'Fallback: ICMS manual
+                ICMS_xml = "<ICMS><ICMS00><orig>0</orig><CST>" & CStr(Item!CST) & "</CST>" & _
+                          "<modBC>3</modBC><vBC>" & Format(CDbl(Item![Valor da Base de Cálculo]), "0.00") & "</vBC>" & _
+                          "<pICMS>" & Format(CDbl(Item![Alíquota do ICMS]), "0.00") & "</pICMS>" & _
+                          "<vICMS>" & Format(CDbl(Item![Valor do ICMS]), "0.00") & "</vICMS></ICMS00></ICMS>"
+                Debug.Print "ICMS00 manual criado: " & Left(ICMS_xml, 100) & "..."
+                Err.Clear
+            Else
+                Debug.Print "ICMS00 executado com SUCESSO"
+            End If
+            Debug.Print "ICMS Tributado: CST=" & Item!CST & " BC=" & Item![Valor da Base de Cálculo] & " Aliq=" & Item![Alíquota do ICMS] & " Valor=" & Item![Valor do ICMS]
+        Else
+            'ICMS não tributado
+            Debug.Print "ICMS não tributado, CST: " & CStr(Item!CST)
+            Select Case CStr(Item!CST)
+                Case "40"
+                    ICMS_xml = objNFeUtil.ICMS40("40", "0", "0")
+                    If Err.Number <> 0 Then
+                        Debug.Print "ERRO ICMS40: " & Err.Number & " - " & Err.Description
+                        ICMS_xml = "<ICMS><ICMS40><orig>0</orig><CST>40</CST><vICMSDeson>0.00</vICMSDeson><motDesICMS>0</motDesICMS></ICMS40></ICMS>"
+                        Err.Clear
+                    End If
+                Case "41"
+                    ICMS_xml = objNFeUtil.ICMS40("41", "0", "0")
+                    If Err.Number <> 0 Then
+                        Debug.Print "ERRO ICMS40(41): " & Err.Number & " - " & Err.Description
+                        ICMS_xml = "<ICMS><ICMS40><orig>0</orig><CST>41</CST><vICMSDeson>0.00</vICMSDeson><motDesICMS>0</motDesICMS></ICMS40></ICMS>"
+                        Err.Clear
+                    End If
+                Case "50"
+                    ICMS_xml = objNFeUtil.ICMS40("50", "0", "0")
+                    If Err.Number <> 0 Then
+                        Debug.Print "ERRO ICMS40(50): " & Err.Number & " - " & Err.Description
+                        ICMS_xml = "<ICMS><ICMS40><orig>0</orig><CST>50</CST><vICMSDeson>0.00</vICMSDeson><motDesICMS>0</motDesICMS></ICMS40></ICMS>"
+                        Err.Clear
+                    End If
+                Case "60"
+                    ICMS_xml = objNFeUtil.ICMS60("60", "0", "0", CDbl(Item![Valor da Base de Cálculo]), _
+                                                CDbl(Item![Alíquota do ICMS]), CDbl(Item![Valor do ICMS]))
+                    If Err.Number <> 0 Then
+                        Debug.Print "ERRO ICMS60: " & Err.Number & " - " & Err.Description
+                        ICMS_xml = "<ICMS><ICMS60><orig>0</orig><CST>60</CST><vBCSTRet>" & Format(CDbl(Item![Valor da Base de Cálculo]), "0.00") & "</vBCSTRet>" & _
+                                  "<pST>" & Format(CDbl(Item![Alíquota do ICMS]), "0.00") & "</pST>" & _
+                                  "<vICMSSubstituto>0.00</vICMSSubstituto><vICMSSTRet>" & Format(CDbl(Item![Valor do ICMS]), "0.00") & "</vICMSSTRet></ICMS60></ICMS>"
+                        Err.Clear
+                    End If
+                Case Else
+                    ICMS_xml = objNFeUtil.ICMS40("41", "0", "0")
+                    If Err.Number <> 0 Then
+                        Debug.Print "ERRO ICMS40(padrão): " & Err.Number & " - " & Err.Description
+                        ICMS_xml = "<ICMS><ICMS40><orig>0</orig><CST>41</CST><vICMSDeson>0.00</vICMSDeson><motDesICMS>0</motDesICMS></ICMS40></ICMS>"
+                        Err.Clear
+                    End If
+            End Select
+            Debug.Print "ICMS Não Tributado: CST=" & Item!CST
+        End If
+        On Error GoTo DeuErro
+        Debug.Print "ICMS_xml final: " & Left(ICMS_xml, 100) & "..."
+
+        '2. PIS TRADICIONAL
+        Dim PIS_xml As String
+        Debug.Print "=== DEBUG PIS TRADICIONAL ==="
+        Debug.Print "Valor do PIS: " & Item![Valor do PIS]
+
+        On Error Resume Next
+        If CDbl(Item![Valor do PIS]) > 0 Then
+            'PIS tributado - usar dados do banco
+            Debug.Print "Tentando PISAliq com parâmetros:"
+            Debug.Print "- CST: 01"
+            Debug.Print "- vBC: " & CDbl(Item![Bc Pis])
+            Debug.Print "- pPIS: " & CDbl(Item![Aliq do Pis])
+            Debug.Print "- vPIS: " & CDbl(Item![Valor do PIS])
+
+            PIS_xml = objNFeUtil.PISAliq("01", CDbl(Item![Bc Pis]), _
+                                        CDbl(Item![Aliq do Pis]), CDbl(Item![Valor do PIS]))
+            If Err.Number <> 0 Then
+                Debug.Print "ERRO PISAliq: " & Err.Number & " - " & Err.Description
+                'Fallback: PIS manual
+                PIS_xml = "<PIS><PISAliq><CST>01</CST>" & _
+                         "<vBC>" & Format(CDbl(Item![Bc Pis]), "0.00") & "</vBC>" & _
+                         "<pPIS>" & Format(CDbl(Item![Aliq do Pis]), "0.00") & "</pPIS>" & _
+                         "<vPIS>" & Format(CDbl(Item![Valor do PIS]), "0.00") & "</vPIS></PISAliq></PIS>"
+                Debug.Print "PIS manual criado: " & Left(PIS_xml, 100) & "..."
+                Err.Clear
+            Else
+                Debug.Print "PISAliq executado com SUCESSO"
+            End If
+            Debug.Print "PIS Tributado: BC=" & Item![Bc Pis] & " Aliq=" & Item![Aliq do Pis] & " Valor=" & Item![Valor do PIS]
+        Else
+            'PIS não tributado
+            PIS_xml = objNFeUtil.PISNT("04")
+            If Err.Number <> 0 Then
+                Debug.Print "ERRO PISNT: " & Err.Number & " - " & Err.Description
+                PIS_xml = "<PIS><PISNT><CST>04</CST></PISNT></PIS>"
+                Err.Clear
+            End If
+            Debug.Print "PIS Não Tributado: CST=04"
+        End If
+        On Error GoTo DeuErro
+        Debug.Print "PIS_xml final: " & Left(PIS_xml, 100) & "..."
+
+        '3. COFINS TRADICIONAL
+        Dim COFINS_xml As String
+        Debug.Print "=== DEBUG COFINS TRADICIONAL ==="
+        Debug.Print "Valor do COFINS: " & Item![Valor do Cofins]
+
+        On Error Resume Next
+        If CDbl(Item![Valor do Cofins]) > 0 Then
+            'COFINS tributado - usar dados do banco
+            Debug.Print "Tentando COFINSAliq com parâmetros:"
+            Debug.Print "- CST: 01"
+            Debug.Print "- vBC: " & CDbl(Item![Bc Cofins])
+            Debug.Print "- pCOFINS: " & CDbl(Item![Aliq do Cofins])
+            Debug.Print "- vCOFINS: " & CDbl(Item![Valor do Cofins])
+
+            COFINS_xml = objNFeUtil.COFINSAliq("01", CDbl(Item![Bc Cofins]), _
+                                              CDbl(Item![Aliq do Cofins]), CDbl(Item![Valor do Cofins]))
+            If Err.Number <> 0 Then
+                Debug.Print "ERRO COFINSAliq: " & Err.Number & " - " & Err.Description
+                'Fallback: COFINS manual
+                COFINS_xml = "<COFINS><COFINSAliq><CST>01</CST>" & _
+                            "<vBC>" & Format(CDbl(Item![Bc Cofins]), "0.00") & "</vBC>" & _
+                            "<pCOFINS>" & Format(CDbl(Item![Aliq do Cofins]), "0.00") & "</pCOFINS>" & _
+                            "<vCOFINS>" & Format(CDbl(Item![Valor do Cofins]), "0.00") & "</vCOFINS></COFINSAliq></COFINS>"
+                Debug.Print "COFINS manual criado: " & Left(COFINS_xml, 100) & "..."
+                Err.Clear
+            Else
+                Debug.Print "COFINSAliq executado com SUCESSO"
+            End If
+            Debug.Print "COFINS Tributado: BC=" & Item![Bc Cofins] & " Aliq=" & Item![Aliq do Cofins] & " Valor=" & Item![Valor do Cofins]
+        Else
+            'COFINS não tributado
+            COFINS_xml = objNFeUtil.COFINSNT("04")
+            If Err.Number <> 0 Then
+                Debug.Print "ERRO COFINSNT: " & Err.Number & " - " & Err.Description
+                COFINS_xml = "<COFINS><COFINSNT><CST>04</CST></COFINSNT></COFINS>"
+                Err.Clear
+            End If
+            Debug.Print "COFINS Não Tributado: CST=04"
+        End If
+        On Error GoTo DeuErro
+        Debug.Print "COFINS_xml final: " & Left(COFINS_xml, 100) & "..."
+
+        '==========================================
+        ' USAR MÉTODO impostoRTC() (OBRIGATÓRIO)
+        '==========================================
+        Debug.Print "=== DEBUG MÉTODO impostoRTC ==="
+        Debug.Print "Usando método impostoRTC com TODOS os impostos..."
+        Debug.Print "Parâmetros do impostoRTC:"
+        Debug.Print "- vTotTrib: " & vTotTrib
+        Debug.Print "- ICMS_xml: " & Left(ICMS_xml, 50) & "..."
+        Debug.Print "- PIS_xml: " & Left(PIS_xml, 50) & "..."
+        Debug.Print "- COFINS_xml: " & Left(COFINS_xml, 50) & "..."
+        Debug.Print "- det_IS: " & Left(det_IS, 50) & "..."
+        Debug.Print "- det_IBSCBS: " & Left(det_IBSCBS, 50) & "..."
+
+        'Gerar impostos completos usando impostoRTC
+        On Error Resume Next
+        det_imposto = objNFeUtil.impostoRTC(vTotTrib, _
+                                           ICMS_xml, "", "", _
+                                           PIS_xml, "", _
+                                           COFINS_xml, "", _
+                                           "", "", _
+                                           det_IS, det_IBSCBS)
+
+        If Err.Number <> 0 Then
+            Debug.Print "ERRO impostoRTC: " & Err.Number & " - " & Err.Description
+            Debug.Print "Tentando fallback manual para impostoRTC..."
+            Err.Clear
+
+            'Fallback: combinar manualmente se o método não funcionar
+            det_imposto = "<imposto>" & ICMS_xml & PIS_xml & COFINS_xml & det_IS & det_IBSCBS & "</imposto>"
+            Debug.Print "impostoRTC manual criado: " & Left(det_imposto, 100) & "..."
+        Else
+            Debug.Print "impostoRTC executado com SUCESSO"
+            Debug.Print "det_imposto gerado: " & Left(det_imposto, 100) & "..."
+        End If
+        On Error GoTo DeuErro
+
+        Debug.Print "DEBUG: IMPOSTOS COMPLETOS GERADOS:"
+        Debug.Print "- ICMS: " & (CDbl(Item![Valor do ICMS]) > 0)
+        Debug.Print "- PIS: " & (CDbl(Item![Valor do PIS]) > 0)
+        Debug.Print "- COFINS: " & (CDbl(Item![Valor do Cofins]) > 0)
+        Debug.Print "- IS: zerado (transição)"
+        Debug.Print "- IBS/CBS: zerado (transição)"
+        Debug.Print "- Valor Total Tributos: " & vTotTrib
 
         'Detalhe RTC final
         Debug.Print "DEBUG: Chamando método detalheRTC..."
@@ -4630,29 +4893,59 @@ ContinuarProcessamento:
         detalhes_acumulados = detalhes_acumulados & det_xml
         Debug.Print "DEBUG: Detalhes acumulados OK"
 
-        'ACUMULAÇÃO DOS TOTAIS
+        '==========================================
+        ' ACUMULAR TOTAIS TRADICIONAIS + RTC
+        '==========================================
+
+        'Totais tradicionais (valores reais do banco)
+        vBCICMS = vBCICMS + CDbl(Item![Valor da Base de Cálculo])
+        vICMS = vICMS + CDbl(Item![Valor do ICMS])
+        vPIS = vPIS + CDbl(Item![Valor do PIS])
+        vCOFINS = vCOFINS + CDbl(Item![Valor do Cofins])
+        vProd = vProd + CDbl(Item![Valor Total])
+
+        'Totais RTC (zerados na transição)
         vIS = vIS + is_vIS
         vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
         vCBSTotal = vCBSTotal + ibscbs_vCBS
         vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
-        vProd = vProd + Prod_vProd
 
-        Debug.Print "Item " & det_nItem & ": vItem=" & Prod_vItem & " IS=" & is_vIS & " IBS=" & (ibscbs_vIBSUF + ibscbs_vIBSMun) & " CBS=" & ibscbs_vCBS
+        Debug.Print "DEBUG: Acumulando item " & det_nItem & ":"
+        Debug.Print "- BC ICMS: " & Item![Valor da Base de Cálculo] & " (Total: " & vBCICMS & ")"
+        Debug.Print "- ICMS: " & Item![Valor do ICMS] & " (Total: " & vICMS & ")"
+        Debug.Print "- PIS: " & Item![Valor do PIS] & " (Total: " & vPIS & ")"
+        Debug.Print "- COFINS: " & Item![Valor do Cofins] & " (Total: " & vCOFINS & ")"
+        Debug.Print "- Produto: " & Item![Valor Total] & " (Total: " & vProd & ")"
+        Debug.Print "- IS: " & is_vIS & " (Total: " & vIS & ") - zerado transição"
+        Debug.Print "- IBS: " & (ibscbs_vIBSUF + ibscbs_vIBSMun) & " (Total: " & vIBSTotal & ") - zerado transição"
+        Debug.Print "- CBS: " & ibscbs_vCBS & " (Total: " & vCBSTotal & ") - zerado transição"
 
         det_nItem = det_nItem + 1
         Item.MoveNext
     Loop
 
-    'CÁLCULO DO VALOR TOTAL DA NFe RTC (FASE TRANSIÇÃO - SÓ PRODUTOS)
-    vNFTot = vProd  'Na transição: só valor dos produtos (impostos RTC = 0)
+    '==========================================
+    ' CÁLCULO CORRETO DOS TOTAIS (TRADICIONAL + RTC)
+    '==========================================
 
-    'CONSTRUÇÃO DO TOTAL RTC (SEM ICMSTot)
-    Debug.Print "=== TOTAIS NFe 5.0 RTC (TRANSIÇÃO OUTUBRO 2025) ==="
-    Debug.Print "vIS: " & Format(vIS, "0.00") & " (ZERO - fase transição)"
-    Debug.Print "vIBSTotal: " & Format(vIBSTotal, "0.00") & " (ZERO - fase transição)"
-    Debug.Print "vCBSTotal: " & Format(vCBSTotal, "0.00") & " (ZERO - fase transição)"
-    Debug.Print "vProd: " & Format(vProd, "0.00") & " (valor real dos produtos)"
-    Debug.Print "vNFTot: " & Format(vNFTot, "0.00") & " (= vProd na transição)"
+    'Calcular valor total da NFe COM impostos tradicionais
+    vNF = vProd + vICMS + vPIS + vCOFINS  'Valor total com impostos tradicionais
+    vNFTot = vNF  'Para NFe 5.0 RTC com coexistência
+
+    Debug.Print "=== TOTAIS CORRETOS NFe 5.0 RTC (OUTUBRO 2025) ==="
+    Debug.Print "IMPOSTOS TRADICIONAIS (valores reais):"
+    Debug.Print "- vBCICMS: " & Format(vBCICMS, "0.00")
+    Debug.Print "- vICMS: " & Format(vICMS, "0.00")
+    Debug.Print "- vPIS: " & Format(vPIS, "0.00")
+    Debug.Print "- vCOFINS: " & Format(vCOFINS, "0.00")
+    Debug.Print "- vProd: " & Format(vProd, "0.00")
+    Debug.Print "IMPOSTOS RTC (zerados na transição):"
+    Debug.Print "- vIS: " & Format(vIS, "0.00") & " (ZERO - fase transição)"
+    Debug.Print "- vIBSTotal: " & Format(vIBSTotal, "0.00") & " (ZERO - fase transição)"
+    Debug.Print "- vCBSTotal: " & Format(vCBSTotal, "0.00") & " (ZERO - fase transição)"
+    Debug.Print "TOTAL DA NFe:"
+    Debug.Print "- vNF: " & Format(vNF, "0.00") & " (produtos + impostos tradicionais)"
+    Debug.Print "- vNFTot: " & Format(vNFTot, "0.00") & " (total da nota)"
     Debug.Print "==========================================================="
 
     'GERAÇÃO DO XML TOTAL USANDO MÉTODOS FlexDocs 2Gv5.00k
@@ -4671,25 +4964,80 @@ ContinuarProcessamento:
     IBSCBSTot_xml = objNFeUtil.IBSCBSTot(vBCIBSCBS, gIBSTot_Total_xml, gCBSTot_Total_xml, "")
     Debug.Print "DEBUG: IBSCBSTot OK"
 
-    'DEBUG GERAL: Checkpoint método totalRTC (SEM ICMSTot - NFe 5.0)
-    Debug.Print "=== CHECKPOINT: MÉTODO totalRTC (TOTAL NFe 5.0) ==="
-    Debug.Print "ICMSTot: VAZIO (removido na NFe 5.0 RTC)"
+    '==========================================
+    ' GERAR ICMSTot TRADICIONAL (OBRIGATÓRIO)
+    '==========================================
+    Debug.Print "DEBUG: Gerando ICMSTot tradicional..."
+
+    Dim ICMSTot_xml As String
+    On Error Resume Next
+    ICMSTot_xml = objNFeUtil.ICMSTot(vBCICMS, vICMS, 0, 0, 0, 0, 0, 0, _
+                                    vProd, 0, 0, 0, 0, 0, 0, vPIS, vCOFINS, 0, vNF)
+
+    If Err.Number <> 0 Then
+        Debug.Print "ERRO ICMSTot: " & Err.Number & " - " & Err.Description
+        Err.Clear
+        'Fallback: criar ICMSTot manualmente
+        ICMSTot_xml = "<ICMSTot>" & _
+                     "<vBC>" & Format(vBCICMS, "0.00") & "</vBC>" & _
+                     "<vICMS>" & Format(vICMS, "0.00") & "</vICMS>" & _
+                     "<vICMSDeson>0.00</vICMSDeson>" & _
+                     "<vFCP>0.00</vFCP>" & _
+                     "<vBCST>0.00</vBCST>" & _
+                     "<vST>0.00</vST>" & _
+                     "<vFCPST>0.00</vFCPST>" & _
+                     "<vFCPSTRet>0.00</vFCPSTRet>" & _
+                     "<vProd>" & Format(vProd, "0.00") & "</vProd>" & _
+                     "<vFrete>0.00</vFrete>" & _
+                     "<vSeg>0.00</vSeg>" & _
+                     "<vDesc>0.00</vDesc>" & _
+                     "<vII>0.00</vII>" & _
+                     "<vIPI>0.00</vIPI>" & _
+                     "<vIPIDevol>0.00</vIPIDevol>" & _
+                     "<vPIS>" & Format(vPIS, "0.00") & "</vPIS>" & _
+                     "<vCOFINS>" & Format(vCOFINS, "0.00") & "</vCOFINS>" & _
+                     "<vOutro>0.00</vOutro>" & _
+                     "<vNF>" & Format(vNF, "0.00") & "</vNF>" & _
+                     "</ICMSTot>"
+        Debug.Print "DEBUG: ICMSTot criado manualmente (fallback)"
+    Else
+        Debug.Print "SUCESSO: ICMSTot gerado pela biblioteca"
+    End If
+    On Error GoTo DeuErro
+
+    Debug.Print "DEBUG: ICMSTot gerado: " & Left(ICMSTot_xml, 200) & "..."
+
+    '==========================================
+    ' MÉTODO totalRTC COM ICMSTot (CORRETO)
+    '==========================================
+    Debug.Print "=== CHECKPOINT: MÉTODO totalRTC COM COEXISTÊNCIA ==="
+    Debug.Print "ICMSTot: PRESENTE (obrigatório na transição)"
     Debug.Print "ISSQNtot: VAZIO (não aplicável)"
     Debug.Print "retTrib: VAZIO (não aplicável)"
     Debug.Print "vIS: " & vIS & " (zero na transição)"
-    Debug.Print "vNFTot: " & vNFTot & " (valor real da nota)"
+    Debug.Print "vNFTot: " & vNFTot & " (produtos + impostos tradicionais)"
     Debug.Print "IBSCBSTot_xml: " & Left(IBSCBSTot_xml, 100) & "..."
 
-    Debug.Print "DEBUG: Chamando método totalRTC..."
+    Debug.Print "DEBUG: Chamando método totalRTC COM ICMSTot..."
     On Error Resume Next
-    Total = objNFeUtil.totalRTC("", "", "", vIS, IBSCBSTot_xml, vNFTot)
-    If Err.Number = 0 Then
-        Debug.Print "SUCESSO: Método totalRTC executado"
-        Debug.Print "Total XML: " & Left(Total, 200) & "..."
+    Total = objNFeUtil.totalRTC(ICMSTot_xml, "", "", vIS, IBSCBSTot_xml, vNFTot)
+
+    If Err.Number <> 0 Then
+        Debug.Print "ERRO totalRTC: " & Err.Number & " - " & Err.Description
+        Err.Clear
+        'Fallback: criar total manualmente
+        Total = "<total>" & ICMSTot_xml & _
+               "<vIS>" & Format(vIS, "0.00") & "</vIS>" & _
+               IBSCBSTot_xml & _
+               "<vNFTot>" & Format(vNFTot, "0.00") & "</vNFTot>" & _
+               "</total>"
+        Debug.Print "DEBUG: Total criado manualmente (fallback)"
     Else
-        Debug.Print "ERRO no método totalRTC: " & Err.Number & " - " & Err.Description
+        Debug.Print "SUCESSO: Método totalRTC COM ICMSTot executado"
     End If
     On Error GoTo DeuErro
+
+    Debug.Print "DEBUG: Total XML gerado: " & Left(Total, 300) & "..."
 
     Debug.Print "=== XML TOTAL RTC GERADO ==="
     Debug.Print Total
