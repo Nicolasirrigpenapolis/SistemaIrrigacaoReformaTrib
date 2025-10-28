@@ -10,8 +10,6 @@
 Option Explicit
 DefInt A-Z
 
-Private Const RTC_MIN_VIBS As Double = 0.001
-
 Public vgSituacao As Integer                      'situação de edição que do módulo
 Public vgCaracteristica As Integer                'caracteristica do módulo
 Public vgTipo As Integer                          'tipo do módulo
@@ -110,7 +108,7 @@ Public Tipo As Byte, Fechamento2 As Byte
 Private Sub opcPainel1Cp_Click(Index As Integer)
    If vgPriVez Then Exit Sub
    If opcPainel1(Index).Locked Then
-      opcPainel1(val(labopcPainel1.Caption)).Value = True
+      opcPainel1(Val(labopcPainel1.Caption)).Value = True
    Else
          labopcPainel1.Caption = Str$(opcPainel1(Index).BookMark)
          LigaFocos Me
@@ -132,7 +130,7 @@ End Sub
 Private Sub opcPainel2Cp_Click(Index As Integer)
    If vgPriVez Then Exit Sub
    If opcPainel2(Index).Locked Then
-      opcPainel2(val(labopcPainel2.Caption)).Value = True
+      opcPainel2(Val(labopcPainel2.Caption)).Value = True
    Else
       'If Val(labopcPainel2.Caption) <> opcPainel2(Index).BookMark Then 'Manual
          labopcPainel2.Caption = Str$(opcPainel2(Index).BookMark)
@@ -1161,7 +1159,7 @@ Private Sub GerenciarCamposTransporte()
     Dim i      As Integer
     Dim Codigo As Integer
 
-    Codigo = val(txtCp(17).Text)
+    Codigo = Val(txtCp(17).Text)
     idxs = Array(26, 15, 16, 8, 5, 7, 2, 19, 20, 22, 25, 23, 24, 51, 50, 56)
 
     If Codigo = 9 Then
@@ -1606,7 +1604,7 @@ Private Sub GeraNota()
     Close #hFile
 
     If Not Novo_Layout Then
-        RetornoNFe500 NFXmlAssinada, 0, "", "", ""
+        RetornoNFe310 NFXmlAssinada, 0, "", "", ""
     Else
         RetornoNFe NFXmlAssinada, 0, "", "", ""
     End If
@@ -1655,11 +1653,7 @@ Private Sub AcaoPopAmbiente(Index As Integer)
             .Update
             .BookMark = .LastModified
          End With
-         If Parametros_da_NFe!ambiente = 1 Then
-            lblProgresso.Caption = "AMBIENTE NFe EM MODO TESTE"
-         Else
-            lblProgresso.Caption = ""
-         End If
+         lblProgresso.Caption = IIf(Parametros_da_NFe!ambiente = 1, "AMBIENTE NFe EM MODO TESTE", "")
          With vgTb
             .Edit
             !Autorizado = False
@@ -1805,13 +1799,10 @@ End Function
 'Unidanfe e Prefeitura de Penapolis
 Public Sub DANFE()
    Dim CC As Byte, ret&, Transportadora As GRecordSet
-
-   Debug.Print "DEBUG: DANFE - INICIO"
+   
    On Error Resume Next
-
-   Debug.Print "DEBUG: Verificando Numero_da_NFe"
+    
    If Numero_da_NFe > 0 Then
-      Debug.Print "DEBUG: Numero_da_NFe = " & Numero_da_NFe
       If Nota_Cancelada Then
          CC = 1
       Else
@@ -1885,7 +1876,7 @@ End Sub
 
     ' Aviso para Peso Bruto, Peso Líquido e Volumes
 If FinNFe <> 3 Then
-    If val(txtCp(24).Text) = 0 Or val(txtCp(19).Text) = 0 Or val(txtCp(23).Text) = 0 Then
+    If Val(txtCp(24).Text) = 0 Or Val(txtCp(19).Text) = 0 Or Val(txtCp(23).Text) = 0 Then
         If MsgBox( _
                 "Peso Bruto, Peso Líquido e Volumes devem ser preenchidos!." & vbCrLf & _
                 "Clique Sim para corrigir agora ou Não para continuar mesmo assim.", _
@@ -3290,187 +3281,94 @@ End Function
 
 
 '------------------------------------------------------------
-'  RetornoNFe500– compatível com envio SÍNCRONO (5.00)
+'  RetornoNFe310  –  agora para envio SÍNCRONO (EnviaNFSincrono)
 '
-'  • NFXmlAssinada  ? <procNFe> (ou payload com protocolo) devolvido pela DLL
-'  • cStat          ? código de status (100, 150, 110/301/302/303, 101, 2xx…)
-'  • nroProtocolo   ? nº do protocolo (autorização/denegação/cancelamento)
-'  • dhProtocolo    ? data-hora do protocolo
-'  • msgResultado   ? descrição textual do status
+'  • NFXmlAssinada  ?  <procNFe> completo devolvido pela DLL
+'  • cStat          ?  código de status (100, 150, 101, 2xx…)
+'  • nroProtocolo   ?  nº do protocolo de autorização/denegação
+'  • dhProtocolo    ?  data-hora do protocolo
+'  • msgResultado   ?  descrição textual do status
 '------------------------------------------------------------
-Private Sub RetornoNFe500( _
-        ByVal NFXmlAssinada As String, _
-        ByVal cStat As Long, _
-        ByVal nroProtocolo As String, _
-        ByVal dhProtocolo As String, _
-        ByVal msgResultado As String)
 
+'============================================================
+'   SalvaXML – grava o XML AUTORIZADO ou DENEGADO em disco
+'============================================================
+Private Sub RetornoNFe310( _
+        NFXmlAssinada As String, _
+        cStat As Long, _
+        nroProtocolo As String, _
+        dhProtocolo As String, _
+        msgResultado As String)
+
+    Dim Arq        As Long
     Dim tpAmbiente As Long
+    Dim XML        As New GRecordSet
 
-On Error GoTo DeuErro
-    Debug.Print "=========================================="
-    Debug.Print "RetornoNFe500 - INICIO"
-    Debug.Print "=========================================="
-    Debug.Print "DEBUG: Parametros recebidos:"
-    Debug.Print "  - cStat: " & cStat
-    Debug.Print "  - nroProtocolo: " & nroProtocolo
-    Debug.Print "  - dhProtocolo: " & dhProtocolo
-    Debug.Print "  - msgResultado: " & Left$(msgResultado, 200)
-    Debug.Print "  - NFXmlAssinada len: " & Len(NFXmlAssinada)
-
+    On Error GoTo DeuErro
     Screen.MousePointer = vbHourglass
-    Debug.Print "DEBUG: MousePointer definido"
+    MsgBox "Processando retorno da NFe...", vbInformation + vbOKOnly, "Aguarde"
 
-    ' Ambiente (1=Produção, 2=Homologação)
-    Debug.Print "DEBUG: Verificando Parametros_da_NFe..."
-    If Parametros_da_NFe Is Nothing Then
-        Debug.Print "ERRO: Parametros_da_NFe e Nothing!"
-    Else
-        Debug.Print "DEBUG: Parametros_da_NFe OK"
-    End If
-
-    Debug.Print "DEBUG: Definindo tpAmbiente"
+    '––– ambiente
     If Parametros_da_NFe!ambiente = 0 Then
-        tpAmbiente = 1
+        tpAmbiente = 1    ' Produção
     Else
-        tpAmbiente = 2
+        tpAmbiente = 2    ' Homologação
     End If
-    Debug.Print "DEBUG: tpAmbiente = " & tpAmbiente
 
-    ' Mapeamento de status (principais):
-    ' 100 = Autorizado uso da NF-e
-    ' 150 = Autorizado (fora do prazo)
-    ' 110/301/302/303 = Uso denegado (irregularidade)
-    ' 101 = Cancelamento da NF-e homologado
-    ' Demais = Rejeição
-
+    '––––– trata o status já devolvido pela SEFAZ –––––
     Select Case cStat
 
-        '==========================
-        ' AUTORIZADA (sucesso)
-        '==========================
+        '------------------------------------------------
+        ' 100 / 150  –  Autorizada
+        '------------------------------------------------
         Case 100, 150
-            Debug.Print "DEBUG: Entrando no Case 100/150 - Autorizada"
-            Debug.Print "DEBUG: Verificando objeto Nota_Fiscal..."
-            If Nota_Fiscal Is Nothing Then
-                Debug.Print "ERRO: Nota_Fiscal e Nothing!"
-            Else
-                Debug.Print "DEBUG: Nota_Fiscal OK"
-            End If
-
             With Nota_Fiscal
-                Debug.Print "DEBUG: Chamando Nota_Fiscal.Edit"
                 .Edit
-                Debug.Print "DEBUG: Edit OK, atualizando campos..."
                 !Autorizado = True
                 !Transmitido = True
-                If Len(nroProtocolo) > 0 Then ![Protocolo de Autorização NFe] = nroProtocolo
-                If Len(dhProtocolo) > 0 Then ![Data e Hora da NFe] = dhProtocolo
+                ![Protocolo de Autorização NFe] = nroProtocolo
+                ![Data e Hora da NFe] = dhProtocolo
                 If Vazio(!Observação) Then
-                    !Observação = "NF-e autorizada (cStat " & cStat & "). " & msgResultado
+                    !Observação = "NFe Autorizada com Sucesso!"
                 Else
-                    !Observação = !Observação & vbCrLf & "NF-e autorizada (cStat " & cStat & "). " & msgResultado
+                    !Observação = !Observação & vbCrLf & "NFe Autorizada com Sucesso!"
                 End If
-                Debug.Print "DEBUG: Chamando Nota_Fiscal.Update"
                 .Update
-                Debug.Print "DEBUG: Update OK, definindo BookMark"
                 .BookMark = .LastModified
-                Debug.Print "DEBUG: BookMark OK"
             End With
-
-            Debug.Print "DEBUG: Verificando objeto vgTb..."
-            If vgTb Is Nothing Then
-                Debug.Print "ERRO: vgTb e Nothing!"
-            Else
-                Debug.Print "DEBUG: vgTb OK"
-            End If
 
             With vgTb
-                Debug.Print "DEBUG: Chamando vgTb.Edit"
                 .Edit
-                Debug.Print "DEBUG: vgTb.Edit OK"
                 If Vazio(!Observação) Then
-                    !Observação = "NF-e autorizada (cStat " & cStat & ")."
+                    !Observação = "NFe Autorizada com Sucesso!"
                 Else
-                    !Observação = !Observação & vbCrLf & "NF-e autorizada (cStat " & cStat & ")."
+                    !Observação = !Observação & vbCrLf & "NFe Autorizada com Sucesso!"
                 End If
-                Debug.Print "DEBUG: Chamando vgTb.Update"
                 .Update
-                Debug.Print "DEBUG: vgTb.Update OK"
                 .BookMark = .LastModified
-                Debug.Print "DEBUG: vgTb.BookMark OK"
             End With
 
-            ' Salva o procNFe autorizado
-            Debug.Print "DEBUG: Chamando SalvaXML..."
             SalvaXML NFXmlAssinada, tpAmbiente, True
-            Debug.Print "DEBUG: SalvaXML retornou OK"
-
-            Debug.Print "DEBUG: Mostrando MsgBox Autorizada"
-            MsgBox "NF-e Autorizada!", vbInformation, vaTitulo
-            Debug.Print "DEBUG: MsgBox fechado, definindo vgSituacao"
+            MsgBox "NFe Autorizada!", vbInformation, vaTitulo
             vgSituacao = ACAO_NAVEGANDO
-            Debug.Print "DEBUG: vgSituacao=" & vgSituacao & ", chamando PrepBotoes"
             PrepBotoes Me, vgSituacao
-            Debug.Print "DEBUG: PrepBotoes OK, chamando ExecutaPreValidacao"
             ExecutaPreValidacao
-            Debug.Print "DEBUG: ExecutaPreValidacao OK, chamando DANFE"
             DANFE
-            Debug.Print "DEBUG: DANFE OK, finalizando Case 100/150"
-            GoTo SaiDaSub
 
-        '==========================
-        ' USO DENEGADO
-        ' 110 / 301 / 302 / 303
-        '==========================
-        Case 110, 301, 302, 303
+        '------------------------------------------------
+        ' 101  –  Denegada
+        '------------------------------------------------
+        Case 101
             With Nota_Fiscal
                 .Edit
-                !Autorizado = False
-                !Transmitido = True   ' houve retorno com protocolo de denegação
-                If Len(nroProtocolo) > 0 Then ![Protocolo de Autorização NFe] = nroProtocolo
-                If Len(dhProtocolo) > 0 Then ![Data e Hora da NFe] = dhProtocolo
-                If Vazio(!Observação) Then
-                    !Observação = "Uso denegado (cStat " & cStat & "). " & msgResultado
-                Else
-                    !Observação = !Observação & vbCrLf & "Uso denegado (cStat " & cStat & "). " & msgResultado
-                End If
-                .Update
-                .BookMark = .LastModified
-            End With
-
-            With vgTb
-                .Edit
-                If Vazio(!Observação) Then
-                    !Observação = "Uso denegado (cStat " & cStat & ")."
-                Else
-                    !Observação = !Observação & vbCrLf & "Uso denegado (cStat " & cStat & ")."
-                End If
-                .Update
-                .BookMark = .LastModified
-            End With
-
-            ' Salva o XML com denegação (procNFe contendo protNFe de denegado)
-            SalvaXML NFXmlAssinada, tpAmbiente, False
-            MsgBox "NF-e Denegada!", vbExclamation, vaTitulo
-            GoTo SaiDaSub
-
-        '==========================
-        ' CANCELAMENTO HOMOLOGADO
-        ' 101 (e opcionalmente 151)
-        '==========================
-        Case 101, 151
-            With Nota_Fiscal
-                .Edit
-                ' Aqui, a NF-e encontra-se cancelada. Ajuste conforme seus campos.
-                !Autorizado = False
+                !Autorizado = True
                 !Transmitido = True
-                If Len(nroProtocolo) > 0 Then ![Protocolo de Autorização NFe] = nroProtocolo
-                If Len(dhProtocolo) > 0 Then ![Data e Hora da NFe] = dhProtocolo
+                ![Protocolo de Autorização NFe] = nroProtocolo
+                ![Data e Hora da NFe] = dhProtocolo
                 If Vazio(!Observação) Then
-                    !Observação = "Cancelamento homologado (cStat " & cStat & "). " & msgResultado
+                    !Observação = "NFe Denegada!"
                 Else
-                    !Observação = !Observação & vbCrLf & "Cancelamento homologado (cStat " & cStat & "). " & msgResultado
+                    !Observação = !Observação & vbCrLf & "NFe Denegada!"
                 End If
                 .Update
                 .BookMark = .LastModified
@@ -3479,79 +3377,51 @@ On Error GoTo DeuErro
             With vgTb
                 .Edit
                 If Vazio(!Observação) Then
-                    !Observação = "Cancelamento homologado (cStat " & cStat & ")."
+                    !Observação = "NFe Denegada!"
                 Else
-                    !Observação = !Observação & vbCrLf & "Cancelamento homologado (cStat " & cStat & ")."
+                    !Observação = !Observação & vbCrLf & "NFe Denegada!"
                 End If
                 .Update
                 .BookMark = .LastModified
             End With
 
-            ' Salva o XML retornado (a DLL pode devolver o evento/processado)
             SalvaXML NFXmlAssinada, tpAmbiente, False
-            MsgBox "NF-e Cancelada!", vbInformation, vaTitulo
-            GoTo SaiDaSub
+            MsgBox "NFe Denegada!", vbExclamation, vaTitulo
 
-        '==========================
-        ' DEMAIS – REJEIÇÃO
-        '==========================
+        '------------------------------------------------
+        ' Demais códigos – rejeição
+        '------------------------------------------------
         Case Else
-            MsgBox cStat & " – " & msgResultado, vbCritical, "NF-e Rejeitada"
+            MsgBox cStat & " – " & msgResultado, vbCritical, "NFe Rejeitada"
 
             With vgTb
                 .Edit
                 !Transmitido = False
                 If Vazio(!Observação) Then
-                    !Observação = "Rejeição SEFAZ (cStat " & cStat & "): " & msgResultado
+                    !Observação = "Rejeição SEFAZ: " & msgResultado
                 Else
-                    !Observação = !Observação & vbCrLf & "Rejeição SEFAZ (cStat " & cStat & "): " & msgResultado
+                    !Observação = !Observação & vbCrLf & "Rejeição SEFAZ: " & msgResultado
                 End If
                 .Update
                 .BookMark = .LastModified
             End With
-            ' Em rejeição, normalmente NÃO se salva procNFe porque não há protocolo válido de autorização/denegação.
     End Select
 
 SaiDaSub:
-    Debug.Print "DEBUG: RetornoNFe500 - Saindo da sub normalmente"
     Screen.MousePointer = vbDefault
     Exit Sub
 
 DeuErro:
-    Debug.Print "=========================================="
-    Debug.Print "ERRO em RetornoNFe500:"
-    Debug.Print "  Number: " & Err.Number
-    Debug.Print "  Description: " & Err.Description
-    Debug.Print "  Source: " & Err.Source
-    Debug.Print "=========================================="
     MsgBox Err.Description, vbCritical, vaTitulo
     Resume SaiDaSub
 End Sub
 
 
-
+'teste
 
 Private Sub SalvaXML(procNFe As String, tpAmb As Long, autorizada As Boolean)
     Dim Arq As Long, ArquivoSaida As String
 
-    Debug.Print "DEBUG: SalvaXML - INICIO"
-    Debug.Print "  - tpAmb: " & tpAmb
-    Debug.Print "  - autorizada: " & autorizada
-    Debug.Print "  - procNFe len: " & Len(procNFe)
-
-    Debug.Print "DEBUG: Verificando Parametros_da_NFe"
-    If Parametros_da_NFe Is Nothing Then
-        Debug.Print "ERRO CRITICO: Parametros_da_NFe e Nothing em SalvaXML"
-        Exit Sub
-    End If
-
-    Debug.Print "DEBUG: Verificando Nota_Fiscal"
-    If Nota_Fiscal Is Nothing Then
-        Debug.Print "ERRO CRITICO: Nota_Fiscal e Nothing em SalvaXML"
-        Exit Sub
-    End If
-
-    Debug.Print "DEBUG: Montando caminho do arquivo"
     If tpAmb = 1 Then   ' Produção
         ArquivoSaida = IIf(autorizada, _
             Parametros_da_NFe![Diretório 1 NFe Produção], _
@@ -3563,124 +3433,71 @@ Private Sub SalvaXML(procNFe As String, tpAmb As Long, autorizada As Boolean)
             Parametros_da_NFe![Diretório 1 NFe Homologação]) _
             & Format(Nota_Fiscal![Número da NFe], "000000") & "_AUTORIZADO.xml"
     End If
-    Debug.Print "  - ArquivoSaida: " & ArquivoSaida
 
-    Debug.Print "DEBUG: Verificando arquivo existente"
-    If Dir(ArquivoSaida, vbArchive) <> "" Then
-        Debug.Print "DEBUG: Arquivo existe, deletando"
-        Kill ArquivoSaida
-    End If
-
-    Debug.Print "DEBUG: Salvando arquivo XML"
+    If Dir(ArquivoSaida, vbArchive) <> "" Then Kill ArquivoSaida
     Arq = FreeFile
     Open ArquivoSaida For Output As #Arq
        Print #Arq, procNFe
     Close #Arq
-    Debug.Print "DEBUG: Arquivo salvo com sucesso"
-    Debug.Print "DEBUG: SalvaXML - FIM"
 End Sub
 
 
 
-'Layout 4.00 – Envio Síncrono de NF-e (FlexDocs 2Gv5.00k)
-Private Sub TransmitirNFe500(ByVal NFe As String, ByVal chaveNFe As String)
+
+
+
+
+'Layout 4.00 – Envio Síncrono de NF-e
+Private Sub TransmitirNFe310(NFe As String, chaveNFe As String)
 
     '–––– parâmetros da chamada ao Web-Service ––––
-   Dim msgDados       As String
-   Dim msgRetWS       As String
-   Dim msgResultado   As String
-   Dim siglaWS        As String
-   Dim certificado    As String
-   Dim licenca        As String
+    Dim msgDados       As String
+    Dim msgRetWS       As String
+    Dim msgResultado   As String
+    Dim siglaWS        As String
+    Dim certificado    As String
+    Dim licenca        As String
 
     '–––– variáveis do envio síncrono ––––
     Dim NFXmlAssinada  As String   ' XML assinado que volta da DLL
     Dim nroProtocolo   As String   ' nº do protocolo de autorização
     Dim dhProtocolo    As String   ' data-hora do protocolo
     Dim cStat          As Long     ' código de status
-   Dim versao         As String   ' "4.00"
+    Dim versao         As String   ' “4.00”
 
     '–––– infraestrutura local ––––
     Dim i              As Integer
     Dim objNFeUtil     As Object
+    Dim hFile          As Long
     Dim proxy          As String
     Dim usuario        As String
     Dim senha          As String
 
 On Error GoTo DeuErro
 
-    Debug.Print "=========================================="
-    Debug.Print "TransmitirNFe500 - TESTE com versao 4.00 (sincrono)"
-    Debug.Print "=========================================="
-    Debug.Print "DEBUG: Inicio - Definindo MousePointer"
     Screen.MousePointer = vbHourglass
-    Debug.Print "DEBUG: MousePointer OK"
-    Debug.Print "DEBUG: Definindo lblProgresso.Caption"
     lblProgresso.Caption = "Transmitindo NFe..."
-    Debug.Print "DEBUG: lblProgresso OK"
+    Debug.Print "=========================================="
+    Debug.Print "TransmitirNFe310 - Preparando envio NFe 5.00"
+    Debug.Print "=========================================="
 
-    ' OBS: Requer cadeia de certificados das AC instalada (conforme LEIAME)
-    '      no repositório do Windows (Computador Local > Entidades Raiz/Intermediárias).
+    Set objNFeUtil = CreateObject("NFe_util_2G.util")
+    Debug.Print "DEBUG: Objeto NFe_util_2G.util criado para transmissao"
 
-   ' === OBJETO FLEXDOCS NFe 4.00 ===
-   ' Usar DLL 2Gv5.00k registrada (NFe_Util_2G.dll da pasta 2Gv5.00k)
-    Debug.Print "DEBUG: Criando objeto NFe_Util_2G.Util"
-    Set objNFeUtil = CreateObject("NFe_Util_2G.Util")
-    Debug.Print "DEBUG: NFe_Util_2G.Util criado com sucesso"
-    If objNFeUtil Is Nothing Then
-        Debug.Print "ERRO CRITICO: objNFeUtil e Nothing apos CreateObject"
-    End If
-
-    ' === PARÂMETROS AMBIENTE ===
-    Debug.Print "DEBUG: Acessando Parametros_da_NFe"
-    If Parametros_da_NFe Is Nothing Then
-        Debug.Print "ERRO CRITICO: Parametros_da_NFe e Nothing antes de acessar certificado"
-    End If
-    Debug.Print "DEBUG: Lendo certificado digital"
     certificado = Parametros_da_NFe![Certificado Digital]
-    Debug.Print "DEBUG: Certificado lido com sucesso"
-
-    Debug.Print "DEBUG: Lendo siglaWS (UF)"
-    On Error Resume Next
-    siglaWS = Parametros_da_NFe![UF] & ""
-    On Error GoTo DeuErro
-    Debug.Print "DEBUG: siglaWS lido: [" & siglaWS & "]"
-    If Len(Trim$(siglaWS)) = 0 Then
-        Debug.Print "DEBUG: Campo UF vazio, usando SP como padrao"
-        siglaWS = "SP"
-    End If
-    Debug.Print "DEBUG: siglaWS definido: " & siglaWS
-
-    versao = "4.00"
+    siglaWS = "SP"
+    versao = "5.00"
     licenca = "23433296a6c7b3e6e602aa8c71ded18804ec302656cfa8590ff7b35454b14834f4f5aed7ed5b4e4986a6a2d2a4b1abad6758927b36d70c5a1d4588597eaf0de2"
 
-    ' (Opcional) Proxy corporativo:
-    proxy = ""   ' "http://proxy:3128"
-    usuario = "" ' "dominio\usuario"
-    senha = ""   ' "******"
-
-    Debug.Print "DEBUG: Parametros:"
+    Debug.Print "DEBUG: Parametros de transmissao:"
     Debug.Print "  - siglaWS: " & siglaWS
-    Debug.Print "  - versao : " & versao
-    Debug.Print "  - chave  : " & chaveNFe
-    Debug.Print "  - XML len: " & Len(NFe)
+    Debug.Print "  - versao: " & versao
+    Debug.Print "  - chaveNFe: " & chaveNFe
+    Debug.Print "  - Tamanho XML: " & Len(NFe) & " chars"
 
-    ' Sanidade: o XML precisa estar na versao correta (comentado para teste 4.00)
-   'If InStr(1, NFe, "versao=""4.00""", vbTextCompare) = 0 Then
-   '    MsgBox "O XML não está no layout 4.00. Gere novamente a NF-e (identificadorRTC) e tente de novo.", vbExclamation, "Layout incorreto"
-    '    GoTo SaiDaSub
-    'End If
-    Debug.Print "DEBUG: Validacao de versao desabilitada para teste com 4.00"
-
-    ' === ENVIO SÍNCRONO ===
+    ' tentativa de envio síncrono
     For i = 1 To 5
-        Debug.Print "DEBUG: tentativa " & i & " de envio síncrono..."
-        Debug.Print "DEBUG: Verificando objNFeUtil antes de chamar EnviaNFSincrono"
-        If objNFeUtil Is Nothing Then
-            Debug.Print "ERRO CRITICO: objNFeUtil e Nothing na tentativa " & i
-            Exit For
-        End If
-        Debug.Print "DEBUG: objNFeUtil OK, chamando EnviaNFSincrono..."
+        Debug.Print "DEBUG: Tentativa " & i & " de envio sincrono..."
 
         NFXmlAssinada = objNFeUtil.EnviaNFSincrono( _
             siglaWS, NFe, certificado, versao, _
@@ -3688,132 +3505,66 @@ On Error GoTo DeuErro
             nroProtocolo, dhProtocolo, NFXmlAssinada, _
             proxy, usuario, senha, licenca)
 
-        Debug.Print "  - cStat        : " & cStat
-        Debug.Print "  - msgResultado : " & Left$(msgResultado, 300)
+        Debug.Print "  - cStat retornado: " & cStat
+        Debug.Print "  - msgResultado: " & Left(msgResultado, 200)
 
-   Debug.Print "DEBUG: Chamando GravaHistorico tentativa " & i
-   GravaHistorico "Transmitindo NFe (4.00)... Tentativa " & i
-        Debug.Print "DEBUG: GravaHistorico retornou OK"
+        GravaHistorico "Transmitindo NFe... Tentativa " & i
 
-        ' 105 = em processamento; 108/109 = WS com problemas.
-        If cStat <> 105 And cStat <> 108 And cStat <> 109 Then Exit For
-
-        DoEvents
-        ' Se tiver o Declare do Sleep, pode pausar levemente entre as tentativas:
-        ' Sleep 800
+        ' se não for "em processamento" (105), sai do loop
+        If cStat <> 105 Then GoTo Continua
     Next
 
-    ' === TRATAMENTO DE RETORNO ===
+    MsgBox "NFe Não Enviada! Tente Mais Tarde.", vbExclamation, vaTitulo
+    GravaHistorico "Erro ao Transmitir NFe"
+    GoTo SaiDaSub
+
+Continua:
     Select Case cStat
 
-        ' SUCESSO (autorizada/uso autorizado) – síncrono
+        Case 5000 To 7003
+            MsgBox "Descrição do erro: " & vbCrLf & msgResultado, vbCritical, "Envio falhou"
+            GravaHistorico "Erro ao Transmitir NFe: " & msgResultado
+            GoTo SaiDaSub
+
+        '––– SUCESSO SÍNCRONO IMEDIATO –––
         Case 100, 150
-            Debug.Print "DEBUG: Case 100/150 detectado em TransmitirNFe500"
-            Debug.Print "DEBUG: Antes de chamar RetornoNFe500:"
-            Debug.Print "  - NFXmlAssinada len: " & Len(NFXmlAssinada)
-            Debug.Print "  - cStat: " & cStat
-            Debug.Print "  - nroProtocolo: " & nroProtocolo
-            Debug.Print "  - dhProtocolo: " & dhProtocolo
-            Debug.Print "  - msgResultado: " & Left$(msgResultado, 100)
-            ' Usa sua rotina existente
-            Debug.Print "DEBUG: ANTES de chamar RetornoNFe500"
-            RetornoNFe500 NFXmlAssinada, cStat, nroProtocolo, dhProtocolo, msgResultado
-            Debug.Print "DEBUG: DEPOIS de RetornoNFe500 - retornou com sucesso"
+            RetornoNFe310 NFXmlAssinada, cStat, nroProtocolo, dhProtocolo, msgResultado
             GoTo SaiDaSub
 
-        ' Cancelada já (retorno síncrono)
         Case 101
-            Debug.Print "DEBUG: Case 101 - Cancelamento"
-            Debug.Print "DEBUG: ANTES de chamar RetornoNFe500 caso 101"
-            RetornoNFe500 NFXmlAssinada, cStat, nroProtocolo, dhProtocolo, msgResultado
-            Debug.Print "DEBUG: DEPOIS de RetornoNFe500 caso 101"
+            RetornoNFe310 NFXmlAssinada, cStat, nroProtocolo, dhProtocolo, msgResultado
             GoTo SaiDaSub
 
-        ' Duplicidade: trate como "já existe na SEFAZ" (ajuste conforme sua regra)
-        Case 204
-            Debug.Print "DEBUG: Case 204 - Duplicidade"
-            MsgBox "Duplicidade de NF-e (204). A chave já consta na SEFAZ." & vbCrLf & _
-                   "Verifique protocolo/manifestos.", vbExclamation, "Duplicidade"
-            Debug.Print "DEBUG: ANTES de chamar RetornoNFe500 caso 204"
-            RetornoNFe500 NFXmlAssinada, cStat, nroProtocolo, dhProtocolo, msgResultado
-            Debug.Print "DEBUG: DEPOIS de RetornoNFe500 caso 204"
-            GoTo SaiDaSub
-
-        ' Falhas típicas do WS
         Case 108, 109
-            Debug.Print "DEBUG: Case 108/109 - WS com problemas"
-            MsgBox msgResultado & vbCrLf & "WebService com problemas na recepção.", vbCritical, "WS instável"
-            Debug.Print "DEBUG: Chamando GravaHistorico caso 108/109"
-            GravaHistorico "Erro ao Transmitir NFe (4.00): " & msgResultado
-            Debug.Print "DEBUG: GravaHistorico OK, indo para SaiDaSub"
+            MsgBox msgResultado & vbCrLf & "WS com problemas na recepção.", vbCritical, "WS instável"
+            GravaHistorico "Erro ao Transmitir NFe: " & msgResultado
             GoTo SaiDaSub
 
-        ' Demais rejeições
         Case Else
-            Debug.Print "DEBUG: Case Else - Rejeicao cStat=" & cStat
             MsgBox "Descrição do erro: " & vbCrLf & cStat & " - " & msgResultado, vbCritical, "WS rejeitou a NFe"
-            Debug.Print "DEBUG: Chamando GravaHistorico caso Else"
-            GravaHistorico "Erro ao Transmitir NFe (4.00): " & cStat & " - " & msgResultado
-            Debug.Print "DEBUG: GravaHistorico OK, indo para SaiDaSub"
+            GravaHistorico "Erro ao Transmitir NFe: " & msgResultado
             GoTo SaiDaSub
     End Select
 
 SaiDaSub:
-    Debug.Print "DEBUG: TransmitirNFe500 - Finalizando normalmente"
-    Debug.Print "DEBUG: Restaurando MousePointer"
     Screen.MousePointer = vbDefault
-    Debug.Print "DEBUG: Liberando objNFeUtil"
     Set objNFeUtil = Nothing
-    Debug.Print "DEBUG: Acessando Parametros_da_NFe para lblProgresso"
-    If Parametros_da_NFe Is Nothing Then
-        Debug.Print "ERRO: Parametros_da_NFe e Nothing em SaiDaSub"
-        lblProgresso.Caption = ""
-    Else
-        If Parametros_da_NFe!ambiente = 0 Then
-            lblProgresso.Caption = ""
-        Else
-            lblProgresso.Caption = "AMBIENTE NFe EM MODO TESTE"
-        End If
-    End If
-    Debug.Print "DEBUG: lblProgresso definido, saindo da sub"
+    lblProgresso.Caption = IIf(Parametros_da_NFe!ambiente = 0, "", "AMBIENTE NFe EM MODO TESTE")
     Exit Sub
 
 DeuErro:
-    Debug.Print "=========================================="
-    Debug.Print "ERRO em TransmitirNFe500:"
-    Debug.Print "  Number: " & Err.Number
-    Debug.Print "  Description: " & Err.Description
-    Debug.Print "  Source: " & Err.Source
-    Debug.Print "=========================================="
     MsgBox Err.Description, vbCritical, vaTitulo
     Resume SaiDaSub
 End Sub
 
-
-
-
 '– rotina auxiliar para histórico ––
 Private Sub GravaHistorico(txt As String)
-    Debug.Print "DEBUG: GravaHistorico - INICIO"
-    Debug.Print "  - Texto: " & txt
-    Debug.Print "DEBUG: Verificando objeto vgTb"
-    If vgTb Is Nothing Then
-        Debug.Print "ERRO CRITICO: vgTb e Nothing em GravaHistorico"
-        Exit Sub
-    End If
-    Debug.Print "DEBUG: vgTb OK, executando WITH"
     With vgTb
-        Debug.Print "DEBUG: Chamando vgTb.Edit"
         .Edit
-        Debug.Print "DEBUG: Edit OK, atualizando Observacao"
         !Observação = IIf(Vazio(!Observação), txt, !Observação & vbCrLf & txt)
-        Debug.Print "DEBUG: Observacao atualizada, chamando Update"
         .Update
-        Debug.Print "DEBUG: Update OK, definindo BookMark"
         .BookMark = .LastModified
-        Debug.Print "DEBUG: BookMark OK"
     End With
-    Debug.Print "DEBUG: GravaHistorico - FIM"
 End Sub
 
 'Gera a chave de acesso concatenando os campos da NFe
@@ -3842,8 +3593,7 @@ End Function
        Dim ide_cUF As Long, ide_cNF As String, ide_natOp As String, ide_indPag As Long, ide_mode As Long
        Dim ide_serie As Long, ide_nNF As Long, ide_tpNF As Long, ide_cMunFG As String
        '===== Campos RTC obrigatorios NFe 5.0 =====
-   Dim ide_cMunFGIBS As String, ide_tpNFDebito As String, ide_tpNFCredito As String
-   Dim ide_gCompraGov As String, ide_NFePagAntecipado As String
+       Dim ide_cMunFGIBS As String, ide_tpNFDebito As String, ide_tpNFCredito As String
        Dim ide_tpImp As Long, ide_cDV As String, ide_tpAmb As Long, ide_finNFe As Long, ide_tpEmis As Long, ide_procEmi As Long
        Dim ide_verProc As String, ide_NFref As String, ide_dhCont As String, ide_xJust As String
        'Campos Novos Identificação do Documento Layout 3.10
@@ -3870,7 +3620,7 @@ End Function
        'Campos Novos Identificação do Destinatario Layout 3.10
        Dim dest_idEstrangeiro As String, dest_indIEDest As String, dest_IM As String
        '======Identificação do Produtos/Serviços=====
-   Dim det_nItem As Long, det_produto As String, det_imposto As String, det_IS As String
+       Dim det_nItem As Long, det_produto As String, det_imposto As String
        Dim Prod_cProd As String, Prod_cEAN As String, Prod_xProd As String, Prod_NCM As String, Prod_ExTIPI As String
        Dim Prod_CFOP As String, Prod_uCOM As String, Prod_qCom As String, Prod_vUnCom As String, Prod_vProd As String
        Dim Prod_cEANTrib As String, Prod_uTrib As String, Prod_qTrib As String, Prod_vUnTrib As String, Prod_DI As String
@@ -4200,17 +3950,8 @@ End If
           ide_NFRefs = ide_NFRefs + objNFeUtil.NFeRef(Nota_Fiscal![Chave da Devolução 3])
        End If
        
-   Dim usaRTC As Boolean
-   usaRTC = False  ' DESABILITADO: Schema 4.00 NAO suporta campos RTC (cMunFGIBS, IS, IBSCBS, vItem, IBSCBSTot)
-
        Debug.Print "=========================================="
-       Debug.Print "*** ALERTA: usaRTC = " & usaRTC & " ***"
-       Debug.Print "ERRO ESPERADO: cMunFGIBS, impostoIBS, vItem nao sao validos no schema 4.00!"
-       If usaRTC Then
-          Debug.Print "USANDO identificadorRTC (NFe 4.00) - TERA ERRO DE SCHEMA!"
-       Else
-          Debug.Print "USANDO identificador202006 (NFe 4.00)"
-       End If
+       Debug.Print "USANDO identificadorRTC (NFe 5.00)"
        Debug.Print "=========================================="
        Debug.Print "Parametros do identificador:"
        Debug.Print "- ide_cUF: " & ide_cUF
@@ -4219,28 +3960,15 @@ End If
        Debug.Print "- ide_nNF: " & ide_nNF
        Debug.Print "=========================================="
 
-       'Inicializar campos RTC opcionais
-       If usaRTC Then
-          ide_cMunFGIBS = ide_cMunFG
-          ide_tpNFDebito = "0"
-          ide_tpNFCredito = "0"
-          ide_gCompraGov = ""
-          ide_NFePagAntecipado = ""
-          Debug.Print "*** PROBLEMA 1: ide_cMunFGIBS = " & ide_cMunFGIBS & " (NAO EXISTE NO SCHEMA 4.00!) ***"
-       Else
-          ide_cMunFGIBS = ""
-          ide_tpNFDebito = ""
-          ide_tpNFCredito = ""
-          ide_gCompraGov = ""
-          ide_NFePagAntecipado = ""
-       End If
+       'Inicializar campos RTC opcionais (vazios na fase de transicao)
+       ide_cMunFGIBS = ""
+       ide_tpNFDebito = ""
+       ide_tpNFCredito = ""
 
        Debug.Print "DEBUG: Campos RTC opcionais inicializados:"
        Debug.Print "  - ide_cMunFGIBS: [" & ide_cMunFGIBS & "]"
        Debug.Print "  - ide_tpNFDebito: [" & ide_tpNFDebito & "]"
        Debug.Print "  - ide_tpNFCredito: [" & ide_tpNFCredito & "]"
-       Debug.Print "  - ide_gCompraGov: [" & ide_gCompraGov & "]"
-       Debug.Print "  - ide_NFePagAntecipado: [" & ide_NFePagAntecipado & "]"
 
        'Chamada identificadorRTC com 29 parametros conforme 2Gv5.00k
        Debug.Print "DEBUG: Chamando identificadorRTC com 29 parametros..."
@@ -4250,28 +3978,19 @@ End If
        Debug.Print "    dhEmi=" & ide_dhEmi & ", tpNF=" & ide_tpNF
        Debug.Print "    idDest=" & ide_idDest & ", cMunFG=" & ide_cMunFG
        Debug.Print "    tpAmb=" & ide_tpAmb & ", indFinal=" & ide_indFinal
-       If usaRTC Then
-          Debug.Print "  Parametros RTC (opcionais):"
-          Debug.Print "    indIntermed=0, cMunFGIBS=" & ide_cMunFGIBS & ", tpNFDebito=" & ide_tpNFDebito & ", tpNFCredito=" & ide_tpNFCredito
-          Debug.Print "    gCompraGov=" & IIf(ide_gCompraGov = "", "(vazio)", ide_gCompraGov) & ", NFePagAntecipado=" & IIf(ide_NFePagAntecipado = "", "(vazio)", ide_NFePagAntecipado)
-       Else
-          Debug.Print "  Parametros RTC (opcionais): desabilitados para layout 4.00"
-       End If
+       Debug.Print "  Parametros RTC (opcionais):"
+       Debug.Print "    indIntermed=0, cMunFGIBS=[vazio], tpNFDebito=[vazio], tpNFCredito=[vazio]"
 
        On Error Resume Next
-       If usaRTC Then
-          ide = objNFeUtil.identificadorRTC(CInt(ide_cUF), CLng(ide_cNF), ide_natOp, CInt(ide_mode), CInt(ide_serie), CLng(ide_nNF), ide_dhEmi, ide_dhSaiEnt, CInt(ide_tpNF), CInt(ide_idDest), ide_cMunFG, ide_NFRefs, CInt(ide_tpImp), CInt(ide_tpEmis), CInt(ide_cDV), CInt(ide_tpAmb), CInt(ide_finNFe), CInt(ide_indFinal), CInt(ide_indPres), CInt(ide_procEmi), ide_verProc, ide_dhCont, ide_xJust, 0, ide_cMunFGIBS, ide_tpNFDebito, ide_tpNFCredito, ide_gCompraGov, ide_NFePagAntecipado)
-       Else
-          ide = objNFeUtil.identificador202006(CInt(ide_cUF), CLng(ide_cNF), ide_natOp, CInt(ide_mode), CInt(ide_serie), CLng(ide_nNF), ide_dhEmi, ide_dhSaiEnt, CInt(ide_tpNF), CInt(ide_idDest), ide_cMunFG, ide_NFRefs, CInt(ide_tpImp), CInt(ide_tpEmis), CInt(ide_cDV), CInt(ide_tpAmb), CInt(ide_finNFe), CInt(ide_indFinal), CInt(ide_indPres), CInt(ide_procEmi), ide_verProc, ide_dhCont, ide_xJust, 0)
-       End If
+       ide = objNFeUtil.identificadorRTC(CInt(ide_cUF), CLng(ide_cNF), ide_natOp, CInt(ide_mode), CInt(ide_serie), CLng(ide_nNF), ide_dhEmi, ide_dhSaiEnt, CInt(ide_tpNF), CInt(ide_idDest), ide_cMunFG, ide_NFRefs, CInt(ide_tpImp), CInt(ide_tpEmis), CInt(ide_cDV), CInt(ide_tpAmb), CInt(ide_finNFe), CInt(ide_indFinal), CInt(ide_indPres), CInt(ide_procEmi), ide_verProc, ide_dhCont, ide_xJust, 0, ide_cMunFGIBS, ide_tpNFDebito, ide_tpNFCredito, "", "")
 
        If Err.Number <> 0 Then
-          Debug.Print "ERRO ao chamar " & IIf(usaRTC, "identificadorRTC", "identificador202006") & ":"
+          Debug.Print "ERRO ao chamar identificadorRTC:"
           Debug.Print "  Erro: " & Err.Number & " - " & Err.Description
-      Debug.Print "  Verifique se biblioteca 2Gv5.00k esta instalada corretamente"
-   MsgBox "Erro ao gerar identificador da NFe:" & vbCrLf & vbCrLf & _
-         "Erro: " & Err.Number & " - " & Err.Description & vbCrLf & vbCrLf & _
-         "Verifique se a biblioteca FlexDocs 2Gv5.00k esta instalada.", vbCritical, "Erro identificadorRTC"
+          Debug.Print "  Verifique se biblioteca 2Gv5.00k esta instalada corretamente"
+          MsgBox "Erro ao gerar identificador NFe 5.0 RTC:" & vbCrLf & vbCrLf & _
+                 "Erro: " & Err.Number & " - " & Err.Description & vbCrLf & vbCrLf & _
+                 "Verifique se a biblioteca FlexDocs 2Gv5.00k esta instalada.", vbCritical, "Erro identificadorRTC"
           Exit Sub
        Else
           Debug.Print "SUCESSO: identificadorRTC executado sem erros"
@@ -4462,8 +4181,6 @@ End If
              End If
              Prod_qTrib = Item!Quantidade                ' quantidade de comercialização
              Prod_vUnTrib = Item![Valor Unitário]        ' valor unitário de tributação, campo de mera demonstração deve ser o resultado da divisão do vProd / qTrib
-             Prod_qCom = Replace(Format$(Val(Prod_qCom), "0.0000"), ",", ".")
-             Prod_qTrib = Replace(Format$(Val(Prod_qTrib), "0.0000"), ",", ".")
              
              If Nota_Fiscal![Valor Do Frete] > 0 Then
                 TotalDosItens = Nota_Fiscal![Valor Total dos Produtos] + Nota_Fiscal![Valor Total dos Conjuntos] + Nota_Fiscal![Valor Total das Peças] + Nota_Fiscal![Valor Total das Peças Usadas] + Nota_Fiscal![Valor Total de Produtos Usados] + Nota_Fiscal![Valor Total Conjuntos Usados]
@@ -4746,61 +4463,60 @@ End If
              'Gera Grupo do COFINS
              det_COFINS = objNFeUtil.cofins(cofins_CST, cofins_vBC, cofins_pCOFINS, cofins_vCOFINS, cofins_qBCProd, cofins_vAliqProd)
 
-             If usaRTC Then
-                Debug.Print "=========================================="
-                Debug.Print "DEBUG RTC: Gerando impostos RTC para item " & det_nItem
-                Debug.Print "=========================================="
+             Debug.Print "=========================================="
+             Debug.Print "DEBUG RTC: Gerando impostos RTC para item " & det_nItem
+             Debug.Print "=========================================="
 
-                '=========IMPOSTOS RTC - IBS/CBS (FASE TRANSICAO OUTUBRO 2025)=========
-                ibscbs_CST = "90"
-                ibscbs_cClassTrib = ""
-                ibscbs_pIBSUF = 0
-                ibscbs_pIBSMun = 0
-                ibscbs_pCBS = 0
-                ibscbs_vIBSUF = RTC_MIN_VIBS
-                ibscbs_vIBSMun = 0
-                ibscbs_vCBS = 0
-                ibscbs_vBC = ibscbs_vIBSUF + ibscbs_vIBSMun + ibscbs_vCBS
+             '=========IMPOSTOS RTC - IBS/CBS (FASE TRANSICAO OUTUBRO 2025)=========
+             ibscbs_CST = "90"
+             ibscbs_cClassTrib = ""
+             ibscbs_vBC = 0
+             ibscbs_pIBSUF = 0
+             ibscbs_pIBSMun = 0
+             ibscbs_pCBS = 0
+             ibscbs_vIBSUF = 0
+             ibscbs_vIBSMun = 0
+             ibscbs_vCBS = 0
 
-                Debug.Print "DEBUG: Serviço - gIBSUF"
-                gIBSUF_xml = objNFeUtil.gIBSUF(ibscbs_pIBSUF, 0, 0, 0, 0, 0, ibscbs_vIBSUF)
-                Debug.Print "DEBUG: Serviço - gIBSMun"
-                gIBSMun_xml = objNFeUtil.gIBSMun(ibscbs_pIBSMun, 0, 0, 0, 0, 0, ibscbs_vIBSMun)
-                Debug.Print "DEBUG: Serviço - gCBS"
-                gCBS_xml = objNFeUtil.gCBS(ibscbs_pCBS, 0, 0, 0, 0, 0, ibscbs_vCBS)
-                Debug.Print "DEBUG: Serviço - gIBSCBS"
+             'Criar grupos auxiliares zerados
+             Debug.Print "DEBUG: Chamando gIBSUF..."
+             gIBSUF_xml = objNFeUtil.gIBSUF(ibscbs_pIBSUF, 0, 0, 0, 0, 0, ibscbs_vIBSUF)
+             Debug.Print "DEBUG: gIBSUF OK - XML: " & Left(gIBSUF_xml, 100)
 
-                On Error Resume Next
-                gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml, "", "", "", "")
+             Debug.Print "DEBUG: Chamando gIBSMun..."
+             gIBSMun_xml = objNFeUtil.gIBSMun(ibscbs_pIBSMun, 0, 0, 0, 0, 0, ibscbs_vIBSMun)
+             Debug.Print "DEBUG: gIBSMun OK - XML: " & Left(gIBSMun_xml, 100)
+
+             Debug.Print "DEBUG: Chamando gCBS..."
+             gCBS_xml = objNFeUtil.gCBS(ibscbs_pCBS, 0, 0, 0, 0, 0, ibscbs_vCBS)
+             Debug.Print "DEBUG: gCBS OK - XML: " & Left(gCBS_xml, 100)
+
+             On Error Resume Next
+             Debug.Print "DEBUG: Chamando gIBSCBS (tentativa 1 - 8 parametros)..."
+             gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml, "", "", "", "")
+             If Err.Number <> 0 Then
+                Debug.Print "DEBUG: ERRO 8 parametros - " & Err.Number & ": " & Err.Description
+                Err.Clear
+                Debug.Print "DEBUG: Chamando gIBSCBS (tentativa 2 - 4 parametros)..."
+                gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml)
                 If Err.Number <> 0 Then
-                   Debug.Print "DEBUG: gIBSCBS 8 parametros falhou - " & Err.Number & ": " & Err.Description
+                   Debug.Print "DEBUG: ERRO 4 parametros - " & Err.Number & ": " & Err.Description
                    Err.Clear
-                   gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml)
-                   If Err.Number <> 0 Then
-                      Debug.Print "DEBUG: ERRO 4 parametros - " & Err.Number & ": " & Err.Description
-                      Err.Clear
-                      Debug.Print "DEBUG: Criando gIBSCBS manualmente (fallback)..."
-                      gIBSCBS_xml = "<gIBSCBS><vBC>" & Format(ibscbs_vBC, "0.00") & "</vBC>" & gIBSUF_xml & gIBSMun_xml & gCBS_xml & "</gIBSCBS>"
-                      Debug.Print "DEBUG: gIBSCBS manual OK"
-                   Else
-                      Debug.Print "DEBUG: gIBSCBS 4 parametros OK"
-                   End If
+                   Debug.Print "DEBUG: Criando gIBSCBS manualmente (fallback)..."
+                   gIBSCBS_xml = "<gIBSCBS><vBC>" & Format(ibscbs_vBC, "0.00") & "</vBC>" & gIBSUF_xml & gIBSMun_xml & gCBS_xml & "</gIBSCBS>"
+                   Debug.Print "DEBUG: gIBSCBS manual OK"
                 Else
-                   Debug.Print "DEBUG: gIBSCBS 8 parametros OK"
+                   Debug.Print "DEBUG: gIBSCBS 4 parametros OK"
                 End If
-                On Error GoTo DeuErro
-
-                Debug.Print "DEBUG: gIBSCBS_xml final: " & Left(gIBSCBS_xml, 150)
-                Debug.Print "DEBUG: Chamando IBSCBS..."
-                det_IBSCBS = objNFeUtil.IBSCBS(ibscbs_CST, ibscbs_cClassTrib, gIBSCBS_xml, "")
-                Debug.Print "DEBUG: IBSCBS OK - XML: " & Left(det_IBSCBS, 150)
-                Debug.Print "DEBUG: Gerando grupo IS (zerado)..."
-                det_IS = objNFeUtil.IS("90", "", 0, 0, 0, "", 0, 0)
-                Debug.Print "DEBUG: IS OK - XML: " & Left(det_IS, 150)
              Else
-                det_IS = ""
-                det_IBSCBS = ""
+                Debug.Print "DEBUG: gIBSCBS 8 parametros OK"
              End If
+             On Error GoTo DeuErro
+
+             Debug.Print "DEBUG: gIBSCBS_xml final: " & Left(gIBSCBS_xml, 150)
+             Debug.Print "DEBUG: Chamando IBSCBS..."
+             det_IBSCBS = objNFeUtil.IBSCBS(ibscbs_CST, ibscbs_cClassTrib, gIBSCBS_xml, "")
+             Debug.Print "DEBUG: IBSCBS OK - XML: " & Left(det_IBSCBS, 150)
 
              '==============Dados do Imposto de importação
              If Mid(NatOpe![Código da Natureza de Operação], 1, 1) = "3" Then
@@ -4810,31 +4526,19 @@ End If
              'Gera Grupo do Imposto
              'Lei da Transparencia
              'det_imposto = objNFeUtil.imposto310(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN)
-             If usaRTC Then
-                Debug.Print "*** PROBLEMA 2: Chamando impostoRTC com impostoIBS (NAO EXISTE NO SCHEMA 4.00!) ***"
-                det_imposto = objNFeUtil.impostoRTC(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest, det_IS, det_IBSCBS)
-             Else
-                det_imposto = objNFeUtil.impostoNT2015003(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest)
-             End If
+              det_imposto = objNFeUtil.impostoNT2015003(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest)
             
              ' Campos Novos Layout 3.10
              Det_pDevol = 0    ' Campo Opcional uhuu
              Det_vIPIDevol = 0 ' Campo Opcional uhuu
              
              'Gera Grupo de Detalhamento do Produto
-             If usaRTC Then
-                Debug.Print "*** PROBLEMA 3: Chamando detalheRTC com vItem = " & Prod_vProd & " (NAO EXISTE NO SCHEMA 4.00!) ***"
-                Detalhes = Detalhes & objNFeUtil.detalheRTC(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol, "", "", Prod_vProd, "")
-             Else
-                Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol)
-             End If
+             Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol)
 
              'Acumular totais RTC
-             If usaRTC Then
-                vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
-                vCBSTotal = vCBSTotal + ibscbs_vCBS
-                vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
-             End If
+             vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
+             vCBSTotal = vCBSTotal + ibscbs_vCBS
+             vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
 
              Item.MoveNext
           Loop
@@ -4868,10 +4572,6 @@ End If
        Serv_uTrib = "Ser"
        Serv_qTrib = Servicos!Quantidade
        Serv_vUnTrib = Servicos![Valor Unitário]
-   Serv_qCOM = Replace(Format$(Val(Serv_qCOM), "0.0000"), ",", ".")
-   Serv_qTrib = Replace(Format$(Val(Serv_qTrib), "0.0000"), ",", ".")
-   Serv_qCOM = Replace(Format$(Val(Serv_qCOM), "0.0000"), ",", ".")
-   Serv_qTrib = Replace(Format$(Val(Serv_qTrib), "0.0000"), ",", ".")
        Serv_indTot = 0
       'Gera Grupo do Serviço
       ' det_Servicos = objNFeUtil.produtoNT2015003(cServico, "", xServico, Serv_NCM, "", "", "", Serv_CFOP, Serv_uCOM, Serv_qCOM, Serv_vUnCOM, vServ, "", Serv_uTrib, Serv_qTrib, Serv_vUnTrib, 0, 0, Serv_Desc, 0, Serv_indTot, "", "", "", "", "", "")
@@ -4907,26 +4607,12 @@ End If
        det_COFINS = objNFeUtil.cofins(cofins_CST, cofins_vBC, cofins_pCOFINS, cofins_vCOFINS, cofins_qBCProd, cofins_vAliqProd)
        'Gera Grupo do Imposto
        'Lei da Transparencia
-       If usaRTC Then
-          det_imposto = objNFeUtil.impostoRTC(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "", det_IS, det_IBSCBS)
-       Else
-          det_imposto = objNFeUtil.impostoNT2015003(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "")
-       End If
+       det_imposto = objNFeUtil.impostoNT2015003(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "")
        Det_pDevol = 0
        Det_vIPIDevol = 0
        'Gera Grupo de Detalhamento dos Serviços
-       If usaRTC Then
-          Detalhes = Detalhes & objNFeUtil.detalheRTC(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol, "", "", vServ, "")
-       Else
-          Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol)
-       End If
-
-       If usaRTC Then
-          vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
-          vCBSTotal = vCBSTotal + ibscbs_vCBS
-          vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
-       End If
-   Servicos.MoveNext
+       Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol)
+       Servicos.MoveNext
        Loop
        End If
        'fim Serviços
@@ -4972,8 +4658,6 @@ OcultaValor:
     Prod_qTrib = Prod_qCom ' Sincronize com qCom (agora 2, para consistência)
     
     Prod_vUnTrib = Prod_vUnCom ' Sincronize com vUnCom (dividido pela quantidade)
-   Prod_qCom = Replace(Format$(Val(Prod_qCom), "0.0000"), ",", ".")
-   Prod_qTrib = Replace(Format$(Val(Prod_qTrib), "0.0000"), ",", ".")
     
     Prod_vFrete = Nota_Fiscal![Valor Do Frete] ' valor do frete, se cobrado do cliente deve ser rateado entre os itens de produto
     Prod_vSeguro = Nota_Fiscal![Valor Do Seguro] ' valor do seguro, se cobrado do cliente deve ser rateado entre os itens de produto
@@ -5189,54 +4873,13 @@ OcultaValor:
                                       
        'Gera Grupo do Imposto
        'Lei da Transparencia
-       If usaRTC Then
-          ibscbs_CST = "90"
-          ibscbs_cClassTrib = ""
-          ibscbs_pIBSUF = 0
-          ibscbs_pIBSMun = 0
-          ibscbs_pCBS = 0
-          ibscbs_vIBSUF = RTC_MIN_VIBS
-          ibscbs_vIBSMun = 0
-          ibscbs_vCBS = 0
-          ibscbs_vBC = ibscbs_vIBSUF + ibscbs_vIBSMun + ibscbs_vCBS
-          On Error Resume Next
-          gIBSUF_xml = objNFeUtil.gIBSUF(ibscbs_pIBSUF, 0, 0, 0, 0, 0, ibscbs_vIBSUF)
-          gIBSMun_xml = objNFeUtil.gIBSMun(ibscbs_pIBSMun, 0, 0, 0, 0, 0, ibscbs_vIBSMun)
-          gCBS_xml = objNFeUtil.gCBS(ibscbs_pCBS, 0, 0, 0, 0, 0, ibscbs_vCBS)
-          gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml, "", "", "", "")
-          If Err.Number <> 0 Then
-             Err.Clear
-             gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml)
-             If Err.Number <> 0 Then
-                Err.Clear
-                gIBSCBS_xml = "<gIBSCBS><vBC>" & Format(ibscbs_vBC, "0.00") & "</vBC>" & gIBSUF_xml & gIBSMun_xml & gCBS_xml & "</gIBSCBS>"
-             End If
-          End If
-          On Error GoTo DeuErro
-          det_IBSCBS = objNFeUtil.IBSCBS(ibscbs_CST, ibscbs_cClassTrib, gIBSCBS_xml, "")
-          det_IS = objNFeUtil.IS("90", "", 0, 0, 0, "", 0, 0)
-       Else
-          det_IBSCBS = ""
-          det_IS = ""
-       End If
        'det_imposto = objNFeUtil.imposto310(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN)
-       If usaRTC Then
-          det_imposto = objNFeUtil.impostoRTC(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest, det_IS, det_IBSCBS)
-       Else
-          det_imposto = objNFeUtil.impostoNT2015003(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest)
-       End If
+        det_imposto = objNFeUtil.impostoNT2015003(det_vTotTrib, det_icms, det_IPI, det_II, det_PIS, det_PISST, det_COFINS, det_COFINSST, det_ISSQN, CalcICMSUFDest)
        ' Campos Novos Layout 3.10
        Det_pDevol = 0    ' Campo Opcional uhuu
        Det_vIPIDevol = 0 ' Campo Opcional uhuu
        'Gera Grupo de Detalhamento do Produto
-       If usaRTC Then
-          Detalhes = Detalhes & objNFeUtil.detalheRTC(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol, "", "", SemValores![Valor Total], "")
-          vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
-          vCBSTotal = vCBSTotal + ibscbs_vCBS
-          vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
-       Else
-          Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol)
-       End If
+       Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_produto, det_imposto, det_infAdProd, Det_pDevol, Det_vIPIDevol)
     
        Do While Not Item.EOF
           If LayoutAntigo Then
@@ -5274,8 +4917,6 @@ OcultaValor:
           Prod_uTrib = Item![Descrição Unidade]       ' unidade de tributação, na maioria dos casos é idêntico  ao vUnCom
           Prod_qTrib = Item!Quantidade                ' quantidade de comercialização
           Prod_vUnTrib = 0                            ' valor unitário de tributação, campo de mera demonstração deve ser o resultado da divisão do vProd / qTrib
-          Prod_qCom = Replace(Format$(Val(Prod_qCom), "0.0000"), ",", ".")
-          Prod_qTrib = Replace(Format$(Val(Prod_qTrib), "0.0000"), ",", ".")
           Prod_vFrete = 0                             ' valor do frete, se cobrado do cliente deve ser rateado entre os itens de produto
           Prod_vSeguro = 0                            ' valor do seguro, se cobrado do cliente deve ser rateado entre os itens de produto
           Prod_vDesc = 0                              ' valor do desconto concedido
@@ -5484,42 +5125,6 @@ OcultaValor:
        Serv_qTrib = Servicos!Quantidade
        Serv_vUnTrib = Servicos![Valor Unitário]
        Serv_indTot = 0
-   Serv_qCOM = Replace(Format$(Val(Serv_qCOM), "0.0000"), ",", ".")
-    Serv_qTrib = Replace(Format$(Val(Serv_qTrib), "0.0000"), ",", ".")
-       ibscbs_CST = "90"
-       ibscbs_cClassTrib = ""
-       ibscbs_pIBSUF = 0
-       ibscbs_pIBSMun = 0
-       ibscbs_pCBS = 0
-       ibscbs_vIBSUF = RTC_MIN_VIBS
-       ibscbs_vIBSMun = 0
-       ibscbs_vCBS = 0
-       ibscbs_vBC = ibscbs_vIBSUF + ibscbs_vIBSMun + ibscbs_vCBS
-       Debug.Print "DEBUG: Serviço - gIBSUF"
-       gIBSUF_xml = objNFeUtil.gIBSUF(ibscbs_pIBSUF, 0, 0, 0, 0, 0, ibscbs_vIBSUF)
-       Debug.Print "DEBUG: Serviço - gIBSMun"
-       gIBSMun_xml = objNFeUtil.gIBSMun(ibscbs_pIBSMun, 0, 0, 0, 0, 0, ibscbs_vIBSMun)
-       Debug.Print "DEBUG: Serviço - gCBS"
-       gCBS_xml = objNFeUtil.gCBS(ibscbs_pCBS, 0, 0, 0, 0, 0, ibscbs_vCBS)
-       On Error Resume Next
-       Debug.Print "DEBUG: Serviço - gIBSCBS"
-       gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml, "", "", "", "")
-       If Err.Number <> 0 Then
-          Err.Clear
-          gIBSCBS_xml = objNFeUtil.gIBSCBS(ibscbs_vBC, gIBSUF_xml, gIBSMun_xml, gCBS_xml)
-          If Err.Number <> 0 Then
-             Err.Clear
-             gIBSCBS_xml = "<gIBSCBS><vBC>" & Format(ibscbs_vBC, "0.00") & "</vBC>" & gIBSUF_xml & gIBSMun_xml & gCBS_xml & "</gIBSCBS>"
-          End If
-       End If
-       If usaRTC Then
-          On Error GoTo DeuErro
-          det_IBSCBS = objNFeUtil.IBSCBS(ibscbs_CST, ibscbs_cClassTrib, gIBSCBS_xml, "")
-          det_IS = objNFeUtil.IS("90", "", 0, 0, 0, "", 0, 0)
-       Else
-          det_IBSCBS = ""
-          det_IS = ""
-       End If
       'Gera Grupo do Serviço
        'det_Servicos = objNFeUtil.produtoNT2015003(cServico, "", xServico, Serv_NCM, "", "", "", Serv_CFOP, Serv_uCOM, Serv_qCOM, Serv_vUnCOM, vServ, "", Serv_uTrib, Serv_qTrib, Serv_vUnTrib, 0, 0, Serv_Desc, 0, Serv_indTot, "", "", "", "", "", "")
         det_Servicos = objNFeUtil.produto400(cServico, "SEM GTIN", xServico, Serv_NCM, "", "", "", "", "", "", Serv_CFOP, Serv_uCOM, Serv_qCOM, Serv_vUnCOM, vServ, "SEM GTIN", Serv_uTrib, Serv_qTrib, Serv_vUnTrib, 0, 0, Serv_Desc, 0, Serv_indTot, "", "", "", "", "", "", "")
@@ -5554,23 +5159,12 @@ OcultaValor:
        det_COFINS = objNFeUtil.cofins(cofins_CST, cofins_vBC, cofins_pCOFINS, cofins_vCOFINS, cofins_qBCProd, cofins_vAliqProd)
        'Gera Grupo do Imposto
        'Lei da Transparencia
-       If usaRTC Then
-          det_imposto = objNFeUtil.impostoRTC(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "", det_IS, det_IBSCBS)
-       Else
-          det_imposto = objNFeUtil.impostoNT2015003(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "")
-       End If
+       det_imposto = objNFeUtil.impostoNT2015003(Round((Serv_vISSQN + pis_vPIS + cofins_vCOFINS), 2), "", "", "", det_PIS, "", det_COFINS, "", ISSQN310, "")
        Det_pDevol = 0
        Det_vIPIDevol = 0
        'Gera Grupo de Detalhamento dos Serviços
-       If usaRTC Then
-          Detalhes = Detalhes & objNFeUtil.detalheRTC(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol, "", "", vServ, "")
-          vIBSTotal = vIBSTotal + ibscbs_vIBSUF + ibscbs_vIBSMun
-          vCBSTotal = vCBSTotal + ibscbs_vCBS
-          vBCIBSCBS = vBCIBSCBS + ibscbs_vBC
-       Else
-          Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol)
-       End If
-   Servicos.MoveNext
+       Detalhes = Detalhes & objNFeUtil.detalhe310(det_nItem, det_Servicos, det_imposto, "", Det_pDevol, Det_vIPIDevol)
+       Servicos.MoveNext
        Loop
        End If
        'fim Serviços
@@ -5642,71 +5236,57 @@ Continua:
        Dim vIS As Double
        vIS = 0
 
-       If usaRTC Then
-          Debug.Print "=========================================="
-          Debug.Print "DEBUG RTC: Gerando Totais RTC"
-          Debug.Print "- vIBSTotal: " & vIBSTotal
-          Debug.Print "- vCBSTotal: " & vCBSTotal
-          Debug.Print "- vBCIBSCBS: " & vBCIBSCBS
-          Debug.Print "- vIS: " & vIS & " (Imposto Seletivo zerado na transicao)"
-          Debug.Print "=========================================="
+       Debug.Print "=========================================="
+       Debug.Print "DEBUG RTC: Gerando Totais RTC"
+       Debug.Print "- vIBSTotal: " & vIBSTotal
+       Debug.Print "- vCBSTotal: " & vCBSTotal
+       Debug.Print "- vBCIBSCBS: " & vBCIBSCBS
+       Debug.Print "- vIS: " & vIS & " (Imposto Seletivo zerado na transicao)"
+       Debug.Print "=========================================="
 
-          'Gera Totais RTC (zerados na transicao)
-          Debug.Print "DEBUG: Chamando gIBSTot..."
-          gIBSTot_Total_xml = objNFeUtil.gIBSTot(0, 0, 0, 0, 0, 0, vIBSTotal, 0, 0)
-          Debug.Print "DEBUG: gIBSTot OK - XML: " & Left(gIBSTot_Total_xml, 100)
+       'Gera Totais RTC (zerados na transicao)
+        Debug.Print "DEBUG: Chamando gIBSTot..."
+        gIBSTot_Total_xml = objNFeUtil.gIBSTot(0, 0, 0, 0, 0, 0, vIBSTotal, 0, 0)
+        Debug.Print "DEBUG: gIBSTot OK - XML: " & Left(gIBSTot_Total_xml, 100)
 
-          Debug.Print "DEBUG: Chamando gCBSTot..."
-          gCBSTot_Total_xml = objNFeUtil.gCBSTot(0, 0, vCBSTotal, 0, 0)
-          Debug.Print "DEBUG: gCBSTot OK - XML: " & Left(gCBSTot_Total_xml, 100)
+        Debug.Print "DEBUG: Chamando gCBSTot..."
+        gCBSTot_Total_xml = objNFeUtil.gCBSTot(0, 0, vCBSTotal, 0, 0)
+        Debug.Print "DEBUG: gCBSTot OK - XML: " & Left(gCBSTot_Total_xml, 100)
 
-          Debug.Print "DEBUG: Chamando IBSCBSTot..."
-          IBSCBSTot_xml = objNFeUtil.IBSCBSTot(vBCIBSCBS, gIBSTot_Total_xml, gCBSTot_Total_xml, "")
-          Debug.Print "DEBUG: IBSCBSTot OK - XML: " & Left(IBSCBSTot_xml, 150)
+        Debug.Print "DEBUG: Chamando IBSCBSTot..."
+        IBSCBSTot_xml = objNFeUtil.IBSCBSTot(vBCIBSCBS, gIBSTot_Total_xml, gCBSTot_Total_xml, "")
+        Debug.Print "DEBUG: IBSCBSTot OK - XML: " & Left(IBSCBSTot_xml, 150)
 
-          If vIBSTotal = 0 Then vIBSTotal = RTC_MIN_VIBS
-          If vBCIBSCBS = 0 Then vBCIBSCBS = RTC_MIN_VIBS
+       Debug.Print "=========================================="
+       Debug.Print "USANDO totalRTC (NFe 5.00) - COEXISTENCIA"
+       Debug.Print "ICMSTot: PRESENTE (impostos tradicionais)"
+       Debug.Print "IBSCBSTot: PRESENTE (impostos RTC)"
+       Debug.Print "vIS: " & vIS
+       Debug.Print "vNFTot: " & vNF
+       Debug.Print "=========================================="
 
-          Debug.Print "=========================================="
-          Debug.Print "*** PROBLEMA 4: USANDO totalRTC ***"
-          Debug.Print "USANDO totalRTC (NFe 4.00) - COEXISTENCIA"
-          Debug.Print "ICMSTot: PRESENTE (impostos tradicionais)"
-          Debug.Print "IBSCBSTot: PRESENTE (impostos RTC - NAO EXISTE NO SCHEMA 4.00!)"
-          Debug.Print "vIS: " & vIS
-          Debug.Print "vNFTot: " & vNF
-          Debug.Print "=========================================="
+       'Gera Total NFe 5.0 RTC com metodo totalRTC
+        On Error Resume Next
+        Debug.Print "DEBUG: Chamando totalRTC..."
+        Total = objNFeUtil.totalRTC(TotalICMS, ISSQNTot, retTrib, vIS, IBSCBSTot_xml, vNF)
+        If Err.Number <> 0 Then
+           Debug.Print "ERRO ao chamar totalRTC:"
+           Debug.Print "  Erro: " & Err.Number & " - " & Err.Description
+           Err.Clear
+           'Fallback: criar total manualmente
+           Debug.Print "DEBUG: Criando total manualmente (fallback)..."
+           Total = "<total>" & TotalICMS
+           If vIS > 0 Then
+              Total = Total & "<vIS>" & Format(vIS, "0.00") & "</vIS>"
+           End If
+           Total = Total & IBSCBSTot_xml & "<vNFTot>" & Format(vNF, "0.00") & "</vNFTot></total>"
+           Debug.Print "DEBUG: Total manual OK"
+        Else
+           Debug.Print "SUCESSO: totalRTC executado"
+        End If
+        On Error GoTo DeuErro
 
-          'Gera Total NFe 5.0 RTC com metodo totalRTC
-          On Error Resume Next
-          Debug.Print "DEBUG: Chamando totalRTC... (TERA ERRO DE SCHEMA!)"
-          Total = objNFeUtil.totalRTC(TotalICMS, ISSQNTot, retTrib, vIS, IBSCBSTot_xml, vNF)
-          If Err.Number <> 0 Then
-             Debug.Print "ERRO ao chamar totalRTC:"
-             Debug.Print "  Erro: " & Err.Number & " - " & Err.Description
-             Err.Clear
-             'Fallback: criar total manualmente
-             Debug.Print "DEBUG: Criando total manualmente (fallback)..."
-             Total = "<total>" & TotalICMS
-             If vIS > 0 Then
-                Total = Total & "<vIS>" & Format(vIS, "0.00") & "</vIS>"
-             End If
-             Total = Total & IBSCBSTot_xml & "<vNFTot>" & Format(vNF, "0.00") & "</vNFTot></total>"
-             Debug.Print "DEBUG: Total manual OK"
-          Else
-             Debug.Print "SUCESSO: totalRTC executado"
-          End If
-          On Error GoTo DeuErro
-
-          Debug.Print "DEBUG: Total XML final (primeiros 300 chars): " & Left(Total, 300)
-       Else
-          IBSCBSTot_xml = ""
-          Debug.Print "DEBUG: Gerando totais no layout 4.00 legado"
-          Total = "<total>" & TotalICMS
-          If ISSQNTot <> "" Then Total = Total & ISSQNTot
-          If retTrib <> "" Then Total = Total & retTrib
-          Total = Total & "</total>"
-          Debug.Print "DEBUG: Total legado (primeiros 300 chars): " & Left(Total, 300)
-       End If
+        Debug.Print "DEBUG: Total XML final (primeiros 300 chars): " & Left(Total, 300)
        
        '=========Dados da Transportadora=====================
        If Not Nota_Fiscal![Transportadora Avulsa] Then
@@ -5928,12 +5508,12 @@ End If
        'NFe 5.0 requer prefixo "NFe" no atributo Id
        Id = "NFe" & chaveNFe
        Debug.Print "=========================================="
-   Debug.Print "GERANDO NFe 4.00 RTC - Montagem manual do XML"
+       Debug.Print "GERANDO NFe 5.00 RTC - Montagem manual do XML"
        Debug.Print "=========================================="
-   versao = "4.00"
+       versao = "5.00"
 
        'Monta XML completo da NFe 5.0 manualmente
-   Debug.Print "DEBUG: Montando XML NFe 4.00 completo..."
+       Debug.Print "DEBUG: Montando XML NFe 5.00 completo..."
        Debug.Print "  - chaveNFe: " & chaveNFe
        Debug.Print "  - Id (com prefixo NFe): " & Id
        Debug.Print "  - versao: " & versao
@@ -5949,7 +5529,7 @@ End If
 
        NFe = "<?xml version=""1.0"" encoding=""UTF-8""?>" & _
              "<NFe xmlns=""http://www.portalfiscal.inf.br/nfe"">" & _
-             "<infNFe versao=""4.00"" Id=""" & Id & """>" & _
+             "<infNFe versao=""5.00"" Id=""" & Id & """>" & _
              ide & _
              emit & _
              dest & _
@@ -5962,7 +5542,7 @@ End If
              "</infNFe>" & _
              "</NFe>"
 
-   Debug.Print "DEBUG: XML NFe 4.00 montado com sucesso"
+       Debug.Print "DEBUG: XML NFe 5.00 montado com sucesso"
        Debug.Print "  - Tamanho total do XML: " & Len(NFe) & " caracteres"
        Debug.Print "  - XML (primeiros 500 chars): " & Left(NFe, 500)
        Debug.Print "  - XML (ultimos 200 chars): " & Right(NFe, 200)
@@ -6014,7 +5594,7 @@ End If
           .BookMark = .LastModified
        End With
        
-       TransmitirNFe500 NFe, chaveNFe 'Transmitindo... Inicio dos Testes 05/12/2014 Prazo Final para Implantação 01/04/2015
+       TransmitirNFe310 NFe, chaveNFe 'Transmitindo... Inicio dos Testes 05/12/2014 Prazo Final para Implantação 01/04/2015
            
 DeuErro:
        If Err <> 0 Then
@@ -6079,7 +5659,7 @@ Private Sub InicializaApelidos(vgComOQue As Integer)
          UF_do_Veiculo = txtCampo(16).Value
          frete = txtCampo(17).Value
          Valor_do_Frete = txtCampo(27).Value
-         Fechamento = val(labopcPainel2.Caption)
+         Fechamento = Val(labopcPainel2.Caption)
          Valor_do_Fechamento = txtCampo(18).Value
          Volume = txtCampo(19).Value
          Especie = txtCampo(20).Value
@@ -6096,7 +5676,7 @@ Private Sub InicializaApelidos(vgComOQue As Integer)
          Valor_Total_Conjuntos_Usados = txtCampo(47).Value
          Valor_Total_dos_Servicos = txtCampo(46).Value
          Valor_Total_da_Nota_Fiscal = txtCampo(36).Value
-         Tipo_de_Nota = val(labopcPainel1.Caption)
+         Tipo_de_Nota = Val(labopcPainel1.Caption)
          Sequencia_da_Classificacao = txtCampo(49).Value
          Nota_Cancelada = IIf(vgSituacao = ACAO_INCLUINDO, False, vgTb![Nota Cancelada])
          Sequencia_do_Pedido = IIf(vgSituacao = ACAO_INCLUINDO, 0, vgTb![Seqüência Do Pedido])
@@ -6627,7 +6207,7 @@ Private Sub grdBrowse_SaveData(ByVal vgItem As Long, vgColumns() As Variant, vgD
 End Sub
    
 Private Sub grdBrowse_StatusChanged(ByVal vgNewStatus As Integer)
-   If (vgNewStatus = ACAO_EXCLUINDO And val(grdBrowse.RecordSet.BookMark) >= 0) Then
+   If (vgNewStatus = ACAO_EXCLUINDO And Val(grdBrowse.Recordset.BookMark) >= 0) Then
       Reposition
    End If
    PrepBotoes Me, vgNewStatus                          'acerta icones dos botoes
@@ -6782,7 +6362,7 @@ Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boo
                x$ = ExecutaGrid(0, vgCols(), ABRE_TABELA_GRID)
                MudouFiltro = (x$ <> Grid(0).SQLSource)
                If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(0).Status = ACAO_NAVEGANDO Then
-                  If Len(Grid(0).RecordSet.RsSource) > 0 Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
                      Grid(0).CloseRecordset
                   End If
                   Grid(0).OpenRecordSet x$, CURSOR_TABLE
@@ -6796,7 +6376,7 @@ Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boo
                x$ = ExecutaGrid(1, vgCols(), ABRE_TABELA_GRID)
                MudouFiltro = (x$ <> Grid(1).SQLSource)
                If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(1).Status = ACAO_NAVEGANDO Then
-                  If Len(Grid(0).RecordSet.RsSource) > 0 Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
                      Grid(1).CloseRecordset
                   End If
                   Grid(1).OpenRecordSet x$, CURSOR_TABLE
@@ -6810,7 +6390,7 @@ Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boo
                x$ = ExecutaGrid(2, vgCols(), ABRE_TABELA_GRID)
                MudouFiltro = (x$ <> Grid(2).SQLSource)
                If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(2).Status = ACAO_NAVEGANDO Then
-                  If Len(Grid(0).RecordSet.RsSource) > 0 Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
                      Grid(2).CloseRecordset
                   End If
                   Grid(2).OpenRecordSet x$, CURSOR_TABLE
@@ -6824,7 +6404,7 @@ Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boo
                x$ = ExecutaGrid(3, vgCols(), ABRE_TABELA_GRID)
                MudouFiltro = (x$ <> Grid(3).SQLSource)
                If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(3).Status = ACAO_NAVEGANDO Then
-                  If Len(Grid(0).RecordSet.RsSource) > 0 Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
                      Grid(3).CloseRecordset
                   End If
                   Grid(3).OpenRecordSet x$, CURSOR_TABLE
@@ -6838,7 +6418,7 @@ Public Sub Reposition(Optional ForceRebind As Boolean, Optional LockGrids As Boo
                x$ = ExecutaGrid(4, vgCols(), ABRE_TABELA_GRID)
                MudouFiltro = (x$ <> Grid(4).SQLSource)
                If Err = 0 And (ForceRebind Or MudouFiltro) And Grid(4).Status = ACAO_NAVEGANDO Then
-                  If Len(Grid(0).RecordSet.RsSource) > 0 Then
+                  If Len(Grid(0).Recordset.RsSource) > 0 Then
                      Grid(4).CloseRecordset
                   End If
                   Grid(4).OpenRecordSet x$, CURSOR_TABLE
@@ -6861,11 +6441,9 @@ End Sub
 'executa a pré-validação dos campos
 Private Sub ExecutaPreValidacao()
    Dim Ok As Boolean, vgPV As Integer
-   Debug.Print "DEBUG: ExecutaPreValidacao - INICIO"
    On Error Resume Next                           'prepara para possiveis erros
    vgPV = vgPriVez
    vgPriVez = True
-   Debug.Print "DEBUG: vgSituacao = " & vgSituacao
    Ok = (vgSituacao = ACAO_NAVEGANDO And (IIf(cmdDanfe.Caption = "DANFE", 1 = 1, Nota_Cancelada = 0)))
    Botao(0).Enabled = Ok
    Ok = (vgSituacao = ACAO_NAVEGANDO And (Numero_da_NFe > 0 Or Numero_da_Nota_Fiscal > 0))
@@ -9322,7 +8900,7 @@ Private Function ExecutaGrid0(ColumnValue() As Variant, ByVal vgOq As Integer, O
 
 IniApDaCol:
    On Error Resume Next
-   Sequencia_do_Produto = val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
+   Sequencia_do_Produto = Val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
    CST = ColumnValue(3)
    CFOP = ColumnValue(4)
    Quantidade = ColumnValue(6)
@@ -9560,7 +9138,7 @@ Private Function ExecutaGrid1(ColumnValue() As Variant, ByVal vgOq As Integer, O
 
 IniApDaCol:
    On Error Resume Next
-   Sequencia_do_Servico = val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
+   Sequencia_do_Servico = Val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
    Quantidade = ColumnValue(2)
    Valor_Unitario = ColumnValue(3)
    If Grid(1).Status <> ACAO_INCLUINDO Then
@@ -9794,7 +9372,7 @@ Private Function ExecutaGrid2(ColumnValue() As Variant, ByVal vgOq As Integer, O
 
 IniApDaCol:
    On Error Resume Next
-   Sequencia_do_Conjunto = val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
+   Sequencia_do_Conjunto = Val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
    CST = ColumnValue(2)
    CFOP = ColumnValue(3)
    Quantidade = ColumnValue(5)
@@ -10072,7 +9650,7 @@ Private Function ExecutaGrid3(ColumnValue() As Variant, ByVal vgOq As Integer, O
 
 IniApDaCol:
    On Error Resume Next
-   Sequencia_do_Produto = val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
+   Sequencia_do_Produto = Val(Parse$(CStr(ColumnValue(1)), Chr$(1), 1))
    CST = ColumnValue(2)
    CFOP = ColumnValue(3)
    Quantidade = ColumnValue(5)
@@ -10505,7 +10083,5 @@ End Sub
 Private Sub txtCp_MouseDown(Index As Integer, Button As Integer, Shift As Integer, x As Single, y As Single)
    txtCampo(Index).MouseDown
 End Sub
-
-
 
 

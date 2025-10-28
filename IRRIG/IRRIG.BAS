@@ -4676,13 +4676,13 @@ Public Sub VerificaMenus()
    End If
    For i = 0 To mdiIRRIG.Controls.Count - 1          'corre todos os controles
       If TypeOf mdiIRRIG.Controls(i) Is Menu Then    'menus para ver
-         If Val(mdiIRRIG.Controls(i).Tag) > 0 Then   'se tem permissão
+         If val(mdiIRRIG.Controls(i).Tag) > 0 Then   'se tem permissão
             x = "|" + Parse(CStr(mdiIRRIG.Controls(i).Tag), "|") + Chr(1)
             p = InStr(vgPerms, x)
             If p = 0 Or vgPWGrupo = UCase$(LoadGasString(11166)) Then 'nao tem registro para controle de permissão para esse menu, vamos criar...
                vgOk = True
             Else
-               vgOk = (Val(Mid(vgPerms, p + Len(x), 1)) <> 0)
+               vgOk = (val(Mid(vgPerms, p + Len(x), 1)) <> 0)
             End If
             mdiIRRIG.Controls(i).Visible = vgOk
          End If
@@ -4923,11 +4923,11 @@ Public Function Permitido(ByVal vgNomeTab As String, ByVal vgAcao As Integer) As
    If vgRsPwTabelas.PTab("Chave tabelas", " ", Encripta$(vgPWGrupo$), x$) Then 'se achou...
       x$ = Decripta$(vgRsPwTabelas![PW~Permissoes])                            'permissões: 01001
       If vgAcao > 0 Then
-         vgOk = Val(Mid$(x$, vgAcao, 1)) <> 0                                  'se posição da ação é 0 não tem permissão
+         vgOk = val(Mid$(x$, vgAcao, 1)) <> 0                                  'se posição da ação é 0 não tem permissão
       Else
          vgOk = 0
-         vgOk = vgOk + Val(Mid$(x$, 1, 1)) * 2 ^ 1 + Val(Mid$(x$, 2, 1)) * 2 ^ 2
-         vgOk = vgOk + Val(Mid$(x$, 3, 1)) * 2 ^ 3 + Val(Mid$(x$, 4, 1)) * 2 ^ 4
+         vgOk = vgOk + val(Mid$(x$, 1, 1)) * 2 ^ 1 + val(Mid$(x$, 2, 1)) * 2 ^ 2
+         vgOk = vgOk + val(Mid$(x$, 3, 1)) * 2 ^ 3 + val(Mid$(x$, 4, 1)) * 2 ^ 4
       End If
    End If
    Permitido = vgOk                               'retorna o que achou
@@ -4947,7 +4947,7 @@ Public Function PermitidoMenu(ByVal vgTagMenu As String) As Integer
    x$ = Encripta$("M." + Parse((vgTagMenu$), "|"))  'identificacao do menu
    If vgRsPwTabelas.PTab("Chave tabelas", vgIDSistema$, Encripta$(vgPWGrupo$), x$) Then 'se achou...
       x$ = Decripta$(vgRsPwTabelas![PW~Permissoes])                                     'permissões: 01001
-      vgOk = Val(Mid$(x$, 1, 1)) <> 0             'se posição é 0 não tem permissão
+      vgOk = val(Mid$(x$, 1, 1)) <> 0             'se posição é 0 não tem permissão
    End If
    PermitidoMenu = vgOk                           'retorna o que achou
 End Function
@@ -5182,7 +5182,7 @@ Incrementa:
             vgValor = vgSeq                       'pega o default
          Else
             If vgTp = TP_CARACTER Then            'vamos somar o sequencial
-               vgValor = LTrim$(Str$(Val(![SYS~Valor]) + vgSeq)) 'string
+               vgValor = LTrim$(Str$(val(![SYS~Valor]) + vgSeq)) 'string
             ElseIf vgTp = TP_DATA_HORA Then
                If InStr(![SYS~Valor], ".") > 0 Then              'se valor veio de reparação de bd, trata o formato yyyy-mm-dd hh:mm:ss.0000
                   vgValor = CDate(Mid(![SYS~Valor], 1, InStr(![SYS~Valor], ".") - 1)) + vgSeq 'data
@@ -5190,7 +5190,7 @@ Incrementa:
                   vgValor = CDate(![SYS~Valor]) + vgSeq                                       'data
                End If
             Else
-               vgValor = Val(![SYS~Valor]) + vgSeq                                            'número
+               vgValor = val(![SYS~Valor]) + vgSeq                                            'número
             End If
          End If
          ![SYS~ValorAnterior] = ![SYS~Valor]                                                  'grava valor anterior
@@ -5482,7 +5482,7 @@ Public Sub LeParametrosForm(F As Form)
          If F.vgTemBrowse Then
             k$ = PegaStrDoIni(vgBrowseID$, "Alt grdBrowse", vgNomeINI$) 'altura da linha do grid da tabela
             If Len(k$) > 0 Then
-               F.grdBrowse.RowHeight = Val(k$)                          'se leu coloca no grid
+               F.grdBrowse.RowHeight = val(k$)                          'se leu coloca no grid
             End If
             k$ = PegaStrDoIni(vgBrowseID$, "Show filter bar grdBrowse", vgNomeINI$) 'barra de filtro
             If Len(k$) Then F.grdBrowse.ShowFilterBar = CBool(k$)
@@ -5512,7 +5512,7 @@ Public Sub LeParametrosForm(F As Form)
                For j = 1 To F.grdBrowse.Columns.Count
                   k$ = PegaStrDoIni(vgBrowseID$, "Larg grdBrowse" + Str$(j), vgNomeINI$)
                   If Len(k$) > 0 Then
-                     F.grdBrowse.ColumnWidth(j) = Val(k$)                           'acerta tamanho da coluna
+                     F.grdBrowse.ColumnWidth(j) = val(k$)                           'acerta tamanho da coluna
                   End If
                   k$ = PegaStrDoIni(vgBrowseID$, "SumCol grdBrowse" + Str$(j), vgNomeINI$)
                   If Len(k$) > 0 Then F.grdBrowse.ShowSumCol(j) = CBool(k$)
@@ -5546,7 +5546,7 @@ Public Sub LeParametrosForm(F As Form)
             For j = 0 To F.Grid.Count - 1         'corre todos os grids da janela
                k$ = PegaStrDoIni(x$, "Alt grd" + Str$(j), vgNomeINI$)
                If Len(k$) > 0 Then
-                  F.Grid(j).RowHeight = Val(k$)   'restaura altura da linha do grid
+                  F.Grid(j).RowHeight = val(k$)   'restaura altura da linha do grid
                End If
                
                'lê flags para salvar layout do grid
@@ -5585,7 +5585,7 @@ Public Sub LeParametrosForm(F As Form)
                If F.Grid(j).SaveGridCols Then
                   For i = 1 To F.Grid(j).Columns.Count
                      k$ = PegaStrDoIni(x$, "Larg grd" + Str$(j) + Str$(i), vgNomeINI$)
-                     If Len(k$) > 0 Then F.Grid(j).ColumnWidth(i) = Val(k$)
+                     If Len(k$) > 0 Then F.Grid(j).ColumnWidth(i) = val(k$)
                      k$ = PegaStrDoIni(x$, "SumCol grd" + Str$(j) + Str$(i), vgNomeINI$)
                      If Len(k$) > 0 Then F.Grid(j).ShowSumCol(i) = CBool(k$)
                      k$ = PegaStrDoIni(x$, "AvgCol grd" + Str$(j) + Str$(i), vgNomeINI$)
@@ -6746,7 +6746,7 @@ Public Function GHex(lValue As Long, Optional ByVal iDigits As Integer = 3) As S
       sHex = Hex$(lValue)                                    'valor convertido em hexadecimal
       If Len(sHex$) > iDigits Then Err.Raise 6, "GHex", "Overflow"
       sHex = LPad$(sHex$, iDigits, "0")                      'acrescentados zeros à esquerda
-      sSignificant = Chr(Val("&H" & Left(sHex, 1)) + 65)     'valor significativo, padrão GAS Hex
+      sSignificant = Chr(val("&H" & Left(sHex, 1)) + 65)     'valor significativo, padrão GAS Hex
       GHex = sSignificant & Right(sHex, iDigits - 1)         'retorno do valor no padrão GAS Hex
 End Function
 
@@ -6755,5 +6755,7 @@ End Function
 Public Function GHexToDecimal(sGHexValue As String) As Integer
    Dim sSignificant As String
    sSignificant = Asc(Left$(sGHexValue, 1)) - 65            'valor do dígito significativo
-   GHexToDecimal = Val("&H" & Hex$(sSignificant) & Right(sGHexValue, Len(sGHexValue) - 1)) 'retorno do valor no sistema decimal
+   GHexToDecimal = val("&H" & Hex$(sSignificant) & Right(sGHexValue, Len(sGHexValue) - 1)) 'retorno do valor no sistema decimal
 End Function
+
+
